@@ -1,0 +1,3564 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<title>MediPay v1.0 — E-Health Wallet & Healthcare Financing</title>
+<style>
+  :root {
+    --navy: #14286D;
+    --navy-dark: #0E1D52;
+    --blue: #2364D2;
+    --sky: #4695F6;
+    --bg-app: #F4F7FC;
+    --card-bg: #FFFFFF;
+    --text-main: #111827;
+    --text-muted: #6B7280;
+    --border: #E5E7EB;
+    --green: #16A34A;
+    --amber: #D97706;
+    --red: #DC2626;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(168deg, #162B75 0%, #162B75 56%, #4B98F8 56.2%, #4B98F8 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  .bg-decor {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .decor-plus {
+    position: absolute;
+    left: 22px;
+    top: 15%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    color: rgba(110, 168, 254, 0.55);
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .decor-wave-top { position: absolute; top: 20px; left: 60px; opacity: 0.45; }
+  .decor-wave-mid { position: absolute; top: 52%; left: 0; opacity: 0.4; }
+  .decor-dots-right {
+    position: absolute; right: 28px; top: 48%;
+    display: grid; grid-template-columns: repeat(4, 6px); gap: 8px;
+  }
+  .decor-dots-right span, .decor-dots-left span {
+    width: 5px; height: 5px; border-radius: 50%; background: rgba(255, 255, 255, 0.55);
+  }
+  .decor-dots-left {
+    position: absolute; left: 24px; bottom: 24px;
+    display: grid; grid-template-columns: repeat(4, 6px); gap: 8px;
+  }
+  .decor-x-grid {
+    position: absolute; right: 50px; bottom: 20px;
+    color: rgba(255,255,255,0.65); font-size: 13px; letter-spacing: 12px; line-height: 1.7;
+  }
+
+  .phone-shell {
+    position: relative;
+    z-index: 2;
+    width: 392px;
+    height: 822px;
+    max-height: 95vh;
+    background: #111;
+    border-radius: 50px;
+    padding: 12px;
+    box-shadow: 0 30px 70px rgba(8, 17, 54, 0.55), inset 0 0 0 2px #555, inset 0 0 0 5px #000;
+    display: flex;
+    flex-direction: column;
+    animation: phoneEnter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes phoneEnter {
+    from { opacity: 0; transform: translateY(10px) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    background: #FFFFFF;
+    border-radius: 40px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .status-bar {
+    height: 40px;
+    padding: 10px 22px 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 700;
+    color: #111;
+    background: #fff;
+    position: relative;
+    flex-shrink: 0;
+    z-index: 20;
+  }
+  .status-bar.splash-mode {
+    background: transparent;
+    position: absolute;
+    top: 0; left: 0; right: 0;
+  }
+  .notch {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 158px;
+    height: 24px;
+    background: #111;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .notch::before { content: ""; width: 42px; height: 4px; background: #2b2b2b; border-radius: 4px; }
+  .notch::after { content: ""; width: 8px; height: 8px; background: #1c2d4a; border-radius: 50%; }
+  .status-icons { display: flex; align-items: center; gap: 5px; }
+
+  .app-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: var(--bg-app);
+    position: relative;
+    scrollbar-width: none;
+  }
+  .app-body::-webkit-scrollbar { display: none; }
+
+  .screen { display: none; min-height: 100%; }
+  .screen.active {
+    display: flex;
+    flex-direction: column;
+    animation: screenEnter 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes screenEnter {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .brand-row { display: flex; align-items: center; gap: 6px; }
+  .brand-text { font-weight: 900; letter-spacing: -0.5px; font-size: 17px; }
+  .brand-text .medi { color: #162B75; }
+  .brand-text .pay { color: #3688F4; }
+
+  .splash-screen {
+    background: linear-gradient(180deg, #F5F8FF 0%, #E7F0FF 100%);
+    justify-content: space-between;
+    align-items: center;
+    padding: 150px 28px 40px;
+    text-align: center;
+  }
+  .splash-logo-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 40px; }
+  .splash-brand { font-size: 42px; font-weight: 900; letter-spacing: -1px; }
+  .btn-get-started {
+    width: 100%;
+    padding: 17px 24px;
+    border-radius: 20px;
+    border: 4px solid #3580E8;
+    background: #162B75;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 10px 25px rgba(22, 43, 117, 0.25);
+    transition: transform 0.15s;
+  }
+  .btn-get-started:active { transform: scale(0.98); }
+
+  .onb-header {
+    background: linear-gradient(180deg, #DFECFF 0%, #FFFFFF 100%);
+    padding: 10px 18px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .step-pill {
+    background: #E2EDFF;
+    color: #162B75;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+  .onb-content {
+    flex: 1;
+    padding: 14px 20px 16px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+  .onb-footer {
+    padding: 12px 20px 18px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-top: 1px solid #F3F4F6;
+  }
+
+  /* Final signup step: scroll the fields while keeping Back / Create Account visible. */
+  #screen-onb4.active {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+  #screen-onb4 .onb-content {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 22px;
+  }
+  #screen-onb4 .onb-footer {
+    flex: 0 0 auto;
+    position: relative;
+    z-index: 2;
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+  }
+  #screen-onb4 .input-field[type="date"] {
+    min-height: 42px;
+    color-scheme: light;
+  }
+
+  .btn-primary {
+    background: #162B75;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-secondary {
+    background: #EFEFEF;
+    color: #111827;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: #374151;
+    border: none;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-full { width: 100%; padding: 13px; font-size: 14px; border-radius: 12px; }
+
+  .input-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .input-field, .select-field {
+    width: 100%;
+    padding: 11px 13px;
+    border-radius: 10px;
+    border: 1px solid #E5E7EB;
+    background: #EFEFEF;
+    font-size: 13px;
+    color: #111827;
+    outline: none;
+    margin-bottom: 11px;
+  }
+  .dob-row {
+    display: grid;
+    grid-template-columns: 1.35fr 0.75fr 1fr;
+    gap: 6px;
+  }
+  .dob-select {
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    padding: 0 8px;
+    border-radius: 10px;
+    border: 1px solid #E5E7EB;
+    background: #EFEFEF;
+    font-size: 13px;
+    color: #111827;
+    outline: none;
+  }
+  .input-field:focus, .select-field:focus {
+    border-color: #2364D2;
+    background: #fff;
+  }
+
+  .income-chips {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .income-chip {
+    border: 1px solid #D1D5DB;
+    background: #F3F4F6;
+    color: #374151;
+    border-radius: 9px;
+    padding: 7px 4px;
+    font-size: 10.5px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+  }
+  .income-chip.active {
+    background: #DBEAFE;
+    border-color: #2364D2;
+    color: #162B75;
+  }
+
+  .choice-card {
+    border: 1.5px solid #D1D5DB;
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    background: #fff;
+  }
+  .choice-card.selected {
+    border-color: #162B75;
+    box-shadow: 0 4px 14px rgba(22, 43, 117, 0.1);
+  }
+  .choice-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #E8F0FE;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .radio-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid #9CA3AF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+  .choice-card.selected .radio-dot {
+    background: #162B75;
+    border-color: #162B75;
+    color: #fff;
+  }
+
+  .app-header {
+    background: linear-gradient(180deg, #D9EAFF 0%, #EEF5FF 100%);
+    padding: 6px 14px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.12);
+  }
+  .verified-badge {
+    background: #D8E7FF;
+    color: #162B75;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.3px;
+  }
+  .header-greeting { font-size: 10.5px; color: #374151; margin-top: 2px; font-weight: 500; }
+  .header-actions { display: flex; align-items: center; gap: 5px; }
+  .hdr-icon-btn {
+    background: #CBE0FF;
+    border: none;
+    border-radius: 10px;
+    height: 30px;
+    padding: 0 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    position: relative;
+    color: #162B75;
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .notif-badge {
+    position: absolute;
+    top: -3px; right: -3px;
+    background: #DC2626; color: #fff;
+    font-size: 9px; font-weight: 800;
+    width: 15px; height: 15px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .bottom-nav {
+    height: 62px;
+    background: #FFFFFF;
+    border-top: 1px solid #E5E7EB;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    padding: 6px 4px 8px;
+    flex-shrink: 0;
+    z-index: 15;
+  }
+  .nav-item {
+    border: none;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    cursor: pointer;
+    color: #9CA3AF;
+    font-size: 9.5px;
+    font-weight: 600;
+    padding: 0;
+  }
+  .nav-item.active { color: #162B75; font-weight: 800; }
+  .nav-item svg { width: 21px; height: 21px; }
+
+  .pad-14 { padding: 12px 14px 20px; }
+
+  .wallet-hero {
+    background: linear-gradient(135deg, #4B96F7 0%, #2B59C3 55%, #162B75 100%);
+    border-radius: 18px;
+    padding: 14px 16px;
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(22, 43, 117, 0.22);
+    margin-bottom: 12px;
+  }
+  .wallet-top-row { display: flex; align-items: center; justify-content: space-between; }
+  .card-hub-btn {
+    background: rgba(14, 29, 82, 0.55);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff; font-size: 10.5px; font-weight: 700;
+    padding: 5px 10px; border-radius: 10px;
+    display: flex; align-items: center; gap: 5px; cursor: pointer;
+  }
+  .wallet-balance-row { display: flex; align-items: center; gap: 8px; margin: 4px 0 12px; }
+  .wallet-amount { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+  .topup-pill {
+    background: rgba(255,255,255,0.25); border: none; color: #fff;
+    font-size: 10.5px; font-weight: 700; padding: 4px 9px; border-radius: 12px; cursor: pointer;
+  }
+  .wallet-subgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .wallet-subbox {
+    background: rgba(255, 255, 255, 0.14);
+    border-radius: 12px; padding: 10px; cursor: pointer;
+  }
+  .wallet-subbox .lbl { font-size: 10.5px; opacity: 0.9; margin-bottom: 4px; display: flex; align-items: center; gap: 3px; }
+  .wallet-subbox .val { font-size: 16px; font-weight: 800; }
+  .wallet-subbox .val.gold { color: #FDE047; }
+  .wallet-subbox .sub { font-size: 10px; opacity: 0.85; margin-top: 2px; }
+
+  .due-banner {
+    background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 14px;
+    padding: 11px 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  }
+  .due-thumb {
+    width: 34px; height: 34px; border-radius: 8px; background: #FDE68A; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; color: #B45309;
+  }
+  .due-info { flex: 1; min-width: 0; }
+  .due-title { font-size: 12px; font-weight: 800; color: #111827; line-height: 1.2; }
+  .due-desc { font-size: 10px; color: #4B5563; margin-top: 2px; }
+  .due-right { text-align: right; flex-shrink: 0; }
+  .due-date-pill {
+    display: inline-block; background: #FDE68A; color: #92400E;
+    font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius: 8px; margin-bottom: 5px;
+  }
+  .btn-pay-now {
+    background: #D8A94B; color: #fff; border: none; border-radius: 8px;
+    padding: 5px 12px; font-size: 11px; font-weight: 800; cursor: pointer; display: block; width: 100%;
+  }
+
+  .sec-header { display: flex; align-items: center; justify-content: space-between; margin: 8px 0 8px; }
+  .sec-title { font-size: 10.5px; font-weight: 800; color: #4B5563; letter-spacing: 0.4px; text-transform: uppercase; }
+  .sec-link { font-size: 10.5px; font-weight: 800; color: #162B75; cursor: pointer; background: none; border: none; }
+
+  .tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+  .tool-btn {
+    background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; padding: 8px 4px;
+    display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; transition: transform 0.1s;
+  }
+  .tool-btn:active { transform: scale(0.96); }
+  .tool-icon { width: 44px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .tool-btn span { font-size: 9.5px; font-weight: 700; color: #1F2937; text-align: center; line-height: 1.1; }
+
+  .qrph-banner {
+    background: #fff; border: 1px solid #BFDBFE; border-radius: 14px;
+    padding: 10px 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 12px; cursor: pointer;
+  }
+  .qrph-icon {
+    width: 38px; height: 38px; border-radius: 10px; background: #162B75; color: #fff;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .instant-pill { background: #4B98F8; color: #fff; font-size: 8.5px; font-weight: 800; padding: 2px 6px; border-radius: 6px; }
+
+  .tx-card {
+    background: #fff; border: 1px solid #E5E7EB; border-radius: 12px;
+    padding: 10px 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 8px; cursor: pointer;
+  }
+  .tx-icon {
+    width: 34px; height: 34px; border-radius: 8px; background: #EFF6FF; color: #2364D2;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .tx-title { font-size: 11.5px; font-weight: 800; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tx-sub { font-size: 10px; color: #6B7280; margin-top: 2px; }
+  .tx-amt { font-size: 12px; font-weight: 800; color: #111827; text-align: right; }
+  .status-pill { display: inline-block; font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 8px; margin-top: 3px; }
+  .status-completed { background: #4B98F8; color: #fff; }
+  .status-pending { background: #FDE047; color: #713F12; }
+  .status-failed { background: #FCA5A5; color: #7F1D1D; }
+
+  .credit-hero {
+    background: linear-gradient(145deg, #162B75 0%, #2446A8 100%);
+    border-radius: 18px; padding: 14px 16px; color: #fff; margin-bottom: 12px;
+  }
+  .promo-chip {
+    background: #1D4ED8; border: 1px solid rgba(255,255,255,0.25); color: #fff;
+    font-size: 9.5px; font-weight: 800; padding: 3px 9px; border-radius: 10px;
+  }
+  .progress-track { height: 8px; background: rgba(255,255,255,0.2); border-radius: 8px; overflow: hidden; margin: 6px 0 12px; }
+  .progress-fill { height: 100%; background: #60A5FA; border-radius: 8px; transition: width 0.3s; }
+  .btn-draw-credit {
+    width: 100%; background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.28);
+    color: #fff; padding: 9px 12px; border-radius: 12px; font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+  }
+
+  .white-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 16px; padding: 13px 14px; margin-bottom: 12px; }
+  .term-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 8px 0 12px; }
+  .term-btn { border: none; background: #E5E7EB; color: #374151; border-radius: 12px; padding: 7px 4px; font-size: 10.5px; font-weight: 700; cursor: pointer; }
+  .term-btn.active { background: #162B75; color: #fff; }
+  .calc-box { background: #F3F4F6; border-radius: 12px; padding: 10px 12px; font-size: 11px; }
+  .calc-row { display: flex; justify-content: space-between; margin-bottom: 5px; color: #374151; }
+  .calc-row.total { border-top: 1px solid #D1D5DB; padding-top: 7px; margin-top: 6px; margin-bottom: 0; font-weight: 800; color: #162B75; font-size: 12px; }
+
+  .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .cat-pill {
+    border: 1px solid #D1D5DB; background: #fff; border-radius: 14px; padding: 8px 10px;
+    display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 10.5px; font-weight: 700; color: #111827; text-align: left;
+  }
+  .cat-pill.active { background: #C7E0F9; border-color: #2364D2; color: #0E1D52; }
+  .channel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .channel-btn {
+    background: #D8E9FC; border: 1.5px solid transparent; border-radius: 12px; padding: 8px 10px;
+    display: flex; align-items: center; gap: 8px; cursor: pointer; text-align: left;
+  }
+  .channel-btn.active { border-color: #162B75; background: #BDD8FA; box-shadow: 0 2px 8px rgba(22, 43, 117, 0.15); }
+  .channel-btn .ct { font-size: 10.5px; font-weight: 800; color: #111827; }
+  .channel-btn .cs { font-size: 9px; color: #374151; }
+
+  .summary-navy { background: #162B75; color: #fff; border-radius: 14px; padding: 12px 14px; font-size: 11.5px; }
+  .summary-navy .row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .summary-navy .total-row {
+    border-top: 1px solid rgba(255,255,255,0.25); padding-top: 7px; margin-top: 6px;
+    font-size: 14px; font-weight: 800; display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .seg-toggle {
+    background: #fff; border: 1px solid #D1D5DB; border-radius: 14px; padding: 4px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 12px;
+  }
+  .seg-btn {
+    border: none; background: transparent; padding: 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 700; color: #374151; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .seg-btn.active { background: #E8F0FE; color: #162B75; }
+
+  .card-flip-wrap { perspective: 1000px; height: 185px; margin-bottom: 6px; cursor: pointer; }
+  .card-flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+  .card-flip-inner.flipped { transform: rotateY(180deg); }
+  .medi-card-face {
+    position: absolute; inset: 0; backface-visibility: hidden; border-radius: 18px; padding: 16px; color: #fff;
+    background: linear-gradient(135deg, #4B96F7 0%, #1F47B6 55%, #12215E 100%);
+    box-shadow: 0 10px 24px rgba(18, 33, 94, 0.3); display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .medi-card-face.frozen { filter: grayscale(0.75); }
+  .medi-card-back { transform: rotateY(180deg); padding: 14px 0; }
+  .mag-stripe { height: 30px; background: #090D16; width: 100%; margin-bottom: 10px; }
+  .sig-strip {
+    background: #E5E7EB; color: #111827; margin: 0 14px; padding: 5px 10px; border-radius: 4px;
+    display: flex; justify-content: space-between; font-size: 10px; font-weight: 700;
+  }
+
+  .sec-ctrl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .ctrl-tile { border-radius: 12px; padding: 10px; cursor: pointer; border: 1px solid #E5E7EB; background: #F3F4F6; }
+  .ctrl-tile.danger { background: #FEE2E2; border-color: #FCA5A5; color: #B91C1C; }
+
+  .filter-row { display: flex; gap: 6px; margin: 8px 0 12px; }
+  .filter-pill { border: none; padding: 5px 12px; border-radius: 14px; font-size: 11px; font-weight: 700; cursor: pointer; opacity: 0.65; }
+  .filter-pill.active { opacity: 1; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+  .fp-all { background: #162B75; color: #fff; }
+  .fp-comp { background: #60A5FA; color: #fff; }
+  .fp-pend { background: #FDE047; color: #713F12; }
+  .fp-fail { background: #EF4444; color: #fff; }
+
+  .modal-backdrop {
+    position: absolute; inset: 0; background: rgba(10, 20, 52, 0.55); backdrop-filter: blur(2px);
+    z-index: 40; display: none; align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal-card {
+    background: #fff; width: 100%; max-height: 85%; border-radius: 20px; padding: 16px;
+    overflow-y: auto; box-shadow: 0 20px 45px rgba(0,0,0,0.3); animation: popIn 0.18s ease-out;
+  }
+  @keyframes popIn { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .modal-title { font-size: 15px; font-weight: 800; color: #111827; }
+  .modal-close {
+    width: 28px; height: 28px; border-radius: 50%; border: none; background: #E5E7EB;
+    color: #374151; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+
+  .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; inset: 0; background-color: #CBD5E1; transition: .2s; border-radius: 22px; }
+  .slider:before {
+    position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
+    background-color: white; transition: .2s; border-radius: 50%;
+  }
+  input:checked + .slider { background-color: #162B75; }
+  input:checked + .slider:before { transform: translateX(18px); }
+
+  .toast {
+    position: absolute; top: 48px; left: 16px; right: 16px; background: #162B75; color: #fff;
+    padding: 10px 14px; border-radius: 12px; font-size: 12px; font-weight: 700; z-index: 90;
+    display: none; align-items: center; justify-content: space-between; box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  }
+  .toast.show { display: flex; }
+
+  .scan-box {
+    position: relative; border: 2px dashed #2364D2; border-radius: 14px; background: #EFF6FF;
+    padding: 16px; text-align: center; overflow: hidden; margin-bottom: 12px;
+  }
+  .scan-beam {
+    position: absolute; left: 0; right: 0; height: 3px; background: #22C55E;
+    box-shadow: 0 0 10px #22C55E; top: 0; display: none; animation: scanMove 1.4s infinite linear;
+  }
+  .scanning .scan-beam { display: block; }
+  @keyframes scanMove { 0% { top: 0; } 50% { top: 96%; } 100% { top: 0; } }
+
+  .demo-dock { position: fixed; bottom: 14px; left: 14px; z-index: 3; display: flex; gap: 6px; flex-wrap: wrap; }
+  .demo-pill {
+    background: rgba(14, 29, 82, 0.82); color: #fff; border: 1px solid rgba(255,255,255,0.25);
+    padding: 6px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; backdrop-filter: blur(4px);
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .demo-pill:active { transform: scale(0.96); }
+
+  /* Subtle, consistent interface motion */
+  button, .choice-card, .wallet-hero, .wallet-subbox, .due-banner,
+  .qrph-banner, .white-card, .tx-card, .credit-hero, .ctrl-tile,
+  .tool-btn, .status-pill, .progress-fill {
+    transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, border-color 0.16s ease, opacity 0.16s ease;
+  }
+  button:active:not(:disabled),
+  .choice-card:active,
+  .wallet-subbox:active,
+  .qrph-banner:active,
+  .tx-card:active,
+  .ctrl-tile:active {
+    transform: scale(0.985);
+  }
+  .nav-item { transition: color 0.16s ease, transform 0.16s ease; }
+  .nav-item svg { transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1); }
+  .nav-item.active svg { transform: translateY(-1px) scale(1.06); }
+  .nav-item:active { transform: scale(0.94); }
+  .input-field, .select-field { transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease; }
+  .input-field:focus, .select-field:focus { box-shadow: 0 0 0 3px rgba(35, 100, 210, 0.10); }
+
+  .screen.active .wallet-hero,
+  .screen.active .credit-hero,
+  .screen.active .due-banner,
+  .screen.active .qrph-banner,
+  .screen.active .white-card,
+  .screen.active .tx-card,
+  .screen.active .choice-card {
+    animation: contentEnter 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .screen.active .tools-grid .tool-btn,
+  .screen.active .sec-ctrl-grid .ctrl-tile {
+    animation: contentEnter 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .screen.active .tools-grid .tool-btn:nth-child(2),
+  .screen.active .sec-ctrl-grid .ctrl-tile:nth-child(2) { animation-delay: 0.04s; }
+  .screen.active .tools-grid .tool-btn:nth-child(3) { animation-delay: 0.08s; }
+  .screen.active .tools-grid .tool-btn:nth-child(4) { animation-delay: 0.12s; }
+  @keyframes contentEnter {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-backdrop.open { animation: backdropEnter 0.16s ease-out both; }
+  @keyframes backdropEnter { from { opacity: 0; } to { opacity: 1; } }
+  .modal-backdrop.open .modal-card { animation: popIn 0.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .toast.show { animation: toastEnter 0.22s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  @keyframes toastEnter {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .decor-wave-top { animation: decorFloat 8s ease-in-out infinite; }
+  .decor-wave-mid { animation: decorFloat 10s ease-in-out infinite reverse; }
+  .decor-dots-right, .decor-dots-left { animation: decorPulse 6s ease-in-out infinite; }
+  @keyframes decorFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  @keyframes decorPulse {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 0.85; }
+  }
+
+  .splash-logo-wrap,
+  .onb-header,
+  .onb-content,
+  .onb-footer,
+  .app-header,
+  .bottom-nav {
+    animation: contentEnter 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .income-chip, .term-btn, .filter-pill, .cat-pill, .channel-btn,
+  .pay-method, .sec-link, .topup-pill, .card-hub-btn, .modal-close,
+  .btn-primary, .btn-secondary, .btn-ghost, .btn-get-started {
+    transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+  }
+  .income-chip:active, .term-btn:active, .filter-pill:active, .cat-pill:active,
+  .channel-btn:active, .pay-method:active, .sec-link:active, .topup-pill:active,
+  .card-hub-btn:active, .modal-close:active, .btn-primary:active,
+  .btn-secondary:active, .btn-ghost:active {
+    transform: scale(0.96);
+  }
+  .progress-fill { transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+
+  /* Keep small-screen text comfortably readable */
+  .phone-screen { font-size: 13px; }
+  .brand-text { font-size: 18px; }
+  .header-greeting { font-size: 11.5px; }
+  .verified-badge { font-size: 10.5px; }
+  .wallet-amount { font-size: 28px; }
+  .wallet-subbox .lbl { font-size: 11.5px; }
+  .wallet-subbox .val { font-size: 17px; }
+  .wallet-subbox .sub { font-size: 10.5px; }
+  .card-hub-btn, .topup-pill { font-size: 11.5px; }
+  .due-title { font-size: 13px; }
+  .due-desc { font-size: 11px; }
+  .due-date-pill { font-size: 10.5px; }
+  .sec-title { font-size: 11.5px; }
+  .sec-link { font-size: 11.5px; }
+  .tool-btn span { font-size: 10.5px; }
+  .tx-title { font-size: 12.5px; }
+  .tx-sub { font-size: 11px; }
+  .tx-amt { font-size: 12.5px; }
+  .status-pill { font-size: 9.5px; }
+  .nav-item { font-size: 10.5px; }
+  .nav-item svg { width: 22px; height: 22px; }
+  .input-field, .select-field { font-size: 14px; }
+  .input-label { font-size: 13px; }
+  .income-chip { font-size: 11.5px; }
+  .term-btn { font-size: 11.5px; }
+  .calc-row { font-size: 12px; }
+  .calc-row.total { font-size: 13px; }
+  .modal-title { font-size: 16px; }
+  .toast { font-size: 13px; }
+  .btn-primary, .btn-secondary, .btn-ghost {
+    font-size: 14px;
+  }
+  #profFullName { font-size: 16px; }
+  #profDobSex { font-size: 12px; }
+  #screen-profile b { font-size: 12px; }
+  #screen-profile .white-card { font-size: 12px; }
+  #screen-card .seg-btn { font-size: 12px; }
+  #screen-card .ctrl-tile { font-size: 12px; }
+  .pay-provider, .pay-amount, .channel-btn .ct { font-size: 12.5px; }
+  .channel-btn .cs { font-size: 11px; }
+
+  @media (hover: hover) {
+    .tool-btn:hover, .white-card:hover, .tx-card:hover, .ctrl-tile:hover,
+    .qrph-banner:hover, .wallet-subbox:hover, .choice-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 16px rgba(22, 43, 117, 0.09);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    body { padding: 0; background: #fff; }
+    .bg-decor, .demo-dock, .notch { display: none; }
+    .phone-shell { width: 100vw; height: 100vh; max-height: none; border-radius: 0; padding: 0; box-shadow: none; }
+    .phone-screen { border-radius: 0; }
+  }
+
+  /* ===== v2 additions ===== */
+  .verified-badge.unverified { background: #FDE68A; color: #92400E; }
+
+  /* Desktop sign-in / create-account page (PC) */
+  .pc-auth-page {
+    display: none; position: fixed; inset: 0; z-index: 5; overflow-y: auto;
+    padding: 48px 20px; align-items: flex-start; justify-content: center;
+    background: radial-gradient(1100px 520px at 85% -10%, #D9EFF1 0%, transparent 60%), linear-gradient(160deg, #F8FCFC 0%, #EAF4F7 100%);
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .pc-auth-page * { font-family: inherit; }
+  .pc-auth-card {
+    width: min(468px, 100%); margin: auto; background: #fff; border: 1px solid #DCEEEF;
+    border-radius: 22px; padding: 36px 36px 28px; box-shadow: 0 24px 56px rgba(15, 94, 146, 0.09);
+  }
+  .pc-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 22px; font-weight: 800; font-size: 18px; letter-spacing: -0.4px; }
+  .pc-brand .medi { color: #162B75; } .pc-brand .pay { color: #2B84F4; }
+  .pc-eyebrow { font-size: 11.5px; font-weight: 800; letter-spacing: 1.4px; color: #0F8B94; text-transform: uppercase; }
+  .pc-title { font-size: 31px; font-weight: 800; color: #183B5A; margin: 6px 0 4px; letter-spacing: -0.6px; line-height: 1.1; }
+  .pc-sub { color: #8A9BA8; font-size: 14.5px; margin-bottom: 8px; }
+  .pc-label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #4A6072; margin: 16px 0 7px; }
+  .pc-label small { font-weight: 600; color: #9AA9B5; font-size: 12px; }
+  .pc-input {
+    width: 100%; height: 50px; border: 1px solid #D9E8EB; border-radius: 12px; padding: 0 16px;
+    font-size: 15px; color: #183B5A; background: #fff; outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  .pc-input::placeholder { color: #A9B8C2; }
+  .pc-input:focus { border-color: #0F8B94; box-shadow: 0 0 0 3px rgba(15, 139, 148, 0.15); }
+  .pc-help { font-size: 12px; color: #7D8E9B; margin-top: 7px; line-height: 1.45; }
+  .pc-consent { display: flex; align-items: flex-start; gap: 9px; margin-top: 18px; font-size: 12.5px; color: #5B6F7E; cursor: pointer; line-height: 1.45; }
+  .pc-consent input { accent-color: #0F8B94; width: 16px; height: 16px; margin-top: 1px; flex-shrink: 0; }
+  .pc-btn {
+    width: 100%; height: 52px; margin-top: 20px; border: none; border-radius: 12px; cursor: pointer;
+    background: linear-gradient(90deg, #0F5E92 0%, #0B8E94 100%); color: #fff; font-weight: 800; font-size: 15px;
+    display: flex; align-items: center; justify-content: center; gap: 14px; box-shadow: 0 10px 22px rgba(15, 94, 146, 0.25);
+    transition: transform .12s, box-shadow .12s;
+  }
+  .pc-btn:hover { transform: translateY(-1px); box-shadow: 0 14px 26px rgba(15, 94, 146, 0.3); }
+  .pc-note { margin-top: 16px; border-left: 3px solid #CFE6E8; padding-left: 10px; font-size: 12px; color: #7D8E9B; line-height: 1.5; }
+  .pc-switch { text-align: center; margin-top: 18px; font-size: 14px; color: #7D8E9B; }
+  .pc-switch a { color: #0B8E94; font-weight: 800; cursor: pointer; margin-left: 4px; }
+  .pc-msg { min-height: 20px; margin-top: 12px; font-size: 13px; font-weight: 700; color: #C2410C; }
+  .pc-msg.ok { color: #0B7F5A; }
+
+  /* Desktop mode: widen the app, no phone frame */
+  @media (min-width: 900px) {
+    body { background: linear-gradient(160deg, #F8FCFC 0%, #E7F2F6 100%); padding: 24px; }
+    .bg-decor { display: none; }
+    body.pc-auth-mode .phone-shell { display: none; }
+    body.pc-auth-mode .pc-auth-page { display: flex; }
+    body.pc-auth-mode .demo-dock { display: none; }
+    .phone-shell {
+      width: min(1080px, 96vw); height: min(860px, 94vh); max-height: none; background: #fff;
+      border-radius: 24px; padding: 0;
+      box-shadow: 0 24px 60px rgba(20, 60, 90, 0.18), 0 0 0 1px rgba(20, 60, 90, 0.08);
+    }
+    .phone-screen { border-radius: 24px; }
+    .status-bar { display: none !important; }
+    .app-header { order: 1; padding: 12px 22px; }
+    .bottom-nav { order: 2; border-top: none; border-bottom: 1px solid #E5E7EB; height: 64px; padding: 6px 22px; }
+    .app-body { order: 3; }
+    .pad-14 { max-width: 780px; margin: 0 auto; padding: 20px 22px 32px; }
+    .onb-header, .onb-content, .onb-footer { max-width: 620px; width: 100%; margin-left: auto; margin-right: auto; }
+    .splash-screen { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-decor">
+  <svg class="decor-wave-top" width="90" height="28" viewBox="0 0 90 28" fill="none">
+    <path d="M2 8L12 2L22 8L32 2L42 8L52 2L62 8L72 2L82 8" stroke="#60A5FA" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M2 20L12 14L22 20L32 14L42 20L52 14L62 20L72 14L82 20" stroke="#60A5FA" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>
+  <div class="decor-plus"><span>+</span><span>✚</span><span>+</span><span>✚</span></div>
+  <svg class="decor-wave-mid" width="75" height="36" viewBox="0 0 75 36" fill="none">
+    <path d="M2 8L12 2L22 8L32 2L42 8L52 2L62 8" stroke="#60A5FA" stroke-width="2" />
+    <path d="M2 16L12 10L22 16L32 10L42 16L52 10L62 16" stroke="#60A5FA" stroke-width="2" />
+    <path d="M2 24L12 18L22 24L32 18L42 24L52 18L62 24" stroke="#60A5FA" stroke-width="2" />
+  </svg>
+  <div class="decor-dots-right" id="dotsRight"></div>
+  <div class="decor-dots-left" id="dotsLeft"></div>
+  <div class="decor-x-grid">× × × ×<br>× × × ×</div>
+</div>
+
+
+<div class="pc-auth-page" id="pcAuthPage">
+  <div class="pc-auth-card">
+    <div class="pc-brand"><svg width="26" height="26" viewBox="0 0 40 40" fill="none"><rect x="8" y="14" width="26" height="20" rx="4" fill="#162B75"/><path d="M14 14L24 7L29 14" fill="#3580E8"/><circle cx="10" cy="14" r="8" fill="#FFFFFF"/><path d="M10 9V19M5 14H15" stroke="#162B75" stroke-width="3" stroke-linecap="round"/></svg><span><span class="medi">MEDI</span><span class="pay">PAY</span></span></div>
+
+    <div id="pcCreateView">
+      <div class="pc-eyebrow">Let's get started</div>
+      <h1 class="pc-title">Create your account</h1>
+      <p class="pc-sub">Use an email or Philippine mobile number to sign in.</p>
+
+      <label class="pc-label" for="pcName">Full name</label>
+      <input class="pc-input" id="pcName" type="text" placeholder="e.g. Ana Reyes" autocomplete="name" />
+
+      <label class="pc-label" for="pcDob">Date of birth</label>
+      <input class="pc-input" id="pcDob" type="date" />
+
+      <label class="pc-label" for="pcIdentifier">Email or mobile number</label>
+      <input class="pc-input" id="pcIdentifier" type="text" placeholder="you@example.com or 09XXXXXXXXX" autocomplete="username" />
+      <div class="pc-help">Use an email or a Philippine mobile number: 09XXXXXXXXX or +639XXXXXXXXX.</div>
+
+      <label class="pc-label" for="pcPatientId">Patient ID <small>Optional</small></label>
+      <input class="pc-input" id="pcPatientId" type="text" placeholder="Your hospital patient ID" />
+
+      <label class="pc-label" for="pcPass">Password</label>
+      <input class="pc-input" id="pcPass" type="password" placeholder="At least 8 characters" autocomplete="new-password" />
+
+      <label class="pc-consent">
+        <input type="checkbox" id="pcConsent" />
+        <span>I agree to MediPay's <b>Terms &amp; Conditions</b> and <b>Data Privacy Act Consent</b> for healthcare financing and records.</span>
+      </label>
+
+      <div class="pc-msg" id="pcMsgCreate"></div>
+      <button class="pc-btn" onclick="pcCreateAccount()">Create account <span>→</span></button>
+      <div class="pc-note">We check that a mobile number matches Philippine format. SMS ownership verification is not active yet.</div>
+      <div class="pc-switch">Already have an account?<a onclick="pcSetMode('login')">Log in</a></div>
+    </div>
+
+    <div id="pcLoginView" style="display:none;">
+      <div class="pc-eyebrow">Welcome back</div>
+      <h1 class="pc-title">Log in</h1>
+      <p class="pc-sub">Use the email or mobile number you signed up with.</p>
+
+      <label class="pc-label" for="pcLoginId">Email or mobile number</label>
+      <input class="pc-input" id="pcLoginId" type="text" placeholder="you@example.com or 09XXXXXXXXX" autocomplete="username" />
+
+      <label class="pc-label" for="pcLoginPass">Password</label>
+      <input class="pc-input" id="pcLoginPass" type="password" placeholder="Your password" autocomplete="current-password" />
+
+      <div class="pc-msg" id="pcMsgLogin"></div>
+      <button class="pc-btn" onclick="pcLogin()">Log in <span>→</span></button>
+      <div class="pc-switch">New to MediPay?<a onclick="pcSetMode('create')">Create an account</a></div>
+    </div>
+  </div>
+</div>
+
+<div class="demo-dock">
+  <button class="demo-pill" onclick="goScreen('splash')">Splash</button>
+  <button class="demo-pill" onclick="goScreen('onb1')">Onboarding</button>
+  <button class="demo-pill" onclick="goScreen('onb-income')">Income Check</button>
+  <button class="demo-pill" onclick="openDashboardDemo()">Dashboard</button>
+  <button class="demo-pill" onclick="resetAllDemo()">↺ Reset Data</button>
+</div>
+
+<div class="phone-shell">
+  <div class="phone-screen" id="phoneScreen">
+
+    <div class="toast" id="appToast">
+      <span id="toastMsg">Success!</span>
+      <span style="cursor:pointer;opacity:0.8" onclick="hideToast()">✕</span>
+    </div>
+
+    <div class="status-bar" id="statusBar">
+      <span>9:49 AM</span>
+      <div class="notch"></div>
+      <div class="status-icons">
+        <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor"><rect x="0" y="6" width="2.2" height="4" rx="0.5"/><rect x="3.5" y="4" width="2.2" height="6" rx="0.5"/><rect x="7" y="2" width="2.2" height="8" rx="0.5"/><rect x="10.5" y="0" width="2.2" height="10" rx="0.5"/></svg>
+        <svg width="13" height="10" viewBox="0 0 24 18" fill="currentColor"><path d="M12 14.5a2 2 0 100 4 2 2 0 000-4zm-5.6-3.2a8 8 0 0111.2 0l1.8-1.8a10.5 10.5 0 00-14.8 0l1.8 1.8zm-4-4a13.5 13.5 0 0119.2 0L23.4 5.5a16 16 0 00-22.8 0l1.8 1.8z"/></svg>
+        <svg width="20" height="10" viewBox="0 0 24 12" fill="none"><rect x="1" y="1" width="19" height="10" rx="2.5" stroke="currentColor" stroke-width="1.6"/><rect x="3" y="3" width="14" height="6" rx="1" fill="currentColor"/><rect x="21" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg>
+      </div>
+    </div>
+
+    <div class="app-header" id="mainHeader" style="display:none;">
+      <div>
+        <div class="brand-row">
+          <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+            <rect x="8" y="14" width="26" height="20" rx="4" fill="#162B75"/>
+            <path d="M14 14L24 7L29 14" fill="#3580E8"/>
+            <circle cx="10" cy="14" r="8" fill="#FFFFFF"/>
+            <path d="M10 9V19M5 14H15" stroke="#162B75" stroke-width="3" stroke-linecap="round"/>
+            <rect x="26" y="21" width="10" height="6" rx="2" fill="#FFFFFF" stroke="#162B75" stroke-width="1.5"/>
+          </svg>
+          <span class="brand-text" style="font-size:15px;"><span class="medi">MEDI</span><span class="pay">PAY</span></span>
+          <span class="verified-badge" id="hdrVerified">UNVERIFIED</span>
+        </div>
+        <div class="header-greeting" id="hdrGreeting">Hello, there</div>
+      </div>
+      <div class="header-actions">
+        <button class="hdr-icon-btn" title="MediPay Guide" onclick="openModal('modalGuide')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4.5A2.5 2.5 0 016.5 2H20v18H6.5A2.5 2.5 0 014 17.5v-13zm2.5-.5a.5.5 0 00-.5.5V16h12V4H6.5z"/></svg>
+        </button>
+        <button class="hdr-icon-btn" title="Health Rewards" onclick="openRewardsModal()">
+          <span style="color:#EAB308;font-size:13px;">✿</span>
+          <span id="hdrPointsBadge">0</span>
+        </button>
+        <button class="hdr-icon-btn" title="24/7 Support" onclick="openModal('modalSupport')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
+        </button>
+        <button class="hdr-icon-btn" title="Notifications" onclick="openModal('modalNotifs')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9zm-4.27 13a2 2 0 01-3.46 0"/></svg>
+          <span class="notif-badge" id="notifCount">0</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="app-body" id="appBody">
+
+      <!-- ==================== PAGE 1: SPLASH ==================== -->
+      <div class="screen splash-screen active" id="screen-splash">
+        <div class="splash-logo-wrap">
+          <svg width="96" height="96" viewBox="0 0 64 64" fill="none">
+            <path d="M22 22L38 11L46 22" fill="#162B75"/>
+            <path d="M27 22L42 14L48 22" fill="#3580E8"/>
+            <rect x="14" y="21" width="40" height="32" rx="6" fill="#162B75"/>
+            <circle cx="16" cy="22" r="12" fill="#FFFFFF"/>
+            <path d="M16 15V29M9 22H23" stroke="#162B75" stroke-width="4.5" stroke-linecap="round"/>
+            <rect x="43" y="33" width="13" height="8" rx="3" fill="#FFFFFF" stroke="#162B75" stroke-width="2.5"/>
+            <circle cx="48" cy="37" r="2" fill="#162B75"/>
+          </svg>
+          <div class="splash-brand"><span style="color:#162B75">MEDI</span><span style="color:#2B84F4">PAY</span></div>
+        </div>
+        <button class="btn-get-started" onclick="goScreen('onb1')">
+          GET STARTED <span style="font-size:20px;">→</span>
+        </button>
+      </div>
+
+      <!-- ==================== STEP 1 OF 5 ==================== -->
+      <div class="screen" id="screen-onb1">
+        <div class="onb-header">
+          <div class="brand-row">
+            <svg width="24" height="24" viewBox="0 0 40 40" fill="none"><rect x="8" y="14" width="26" height="20" rx="4" fill="#162B75"/><circle cx="10" cy="14" r="8" fill="#FFF"/><path d="M10 9V19M5 14H15" stroke="#162B75" stroke-width="3" stroke-linecap="round"/></svg>
+            <span class="brand-text"><span class="medi">MEDI</span><span class="pay">PAY</span></span>
+          </div>
+          <span class="step-pill">Step 1 of 5</span>
+        </div>
+        <div class="onb-content" style="justify-content:space-between;">
+          <div>
+            <div style="text-align:center;color:#162B75;font-weight:800;font-size:13px;margin-top:8px;">Medipay Ehealth Onboarding</div>
+            <h2 style="text-align:center;color:#0E1D52;font-size:19px;font-weight:800;margin:18px 0 36px;">Are you setting this up for</h2>
+
+            <div class="choice-card selected" id="choiceSelf" onclick="selectSetupFor('Yourself')">
+              <div class="choice-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="#162B75"><circle cx="11" cy="8" r="4"/><path d="M4 20c0-3.5 3-6 7-6s7 2.5 7 6"/><circle cx="18" cy="6" r="3" fill="#3580E8"/><path d="M18 4.5v3M16.5 6h3" stroke="#fff" stroke-width="1.3"/></svg>
+              </div>
+              <div>
+                <div style="font-size:14px;font-weight:800;color:#111827;">Yourself</div>
+                <div style="font-size:11px;color:#4B5563;margin-top:4px;line-height:1.35;">Manage your own hospital bills, medicines, MediPay Card &amp; 0% 1st-month credit.</div>
+              </div>
+              <div class="radio-dot">✓</div>
+            </div>
+
+            <div style="text-align:center;font-size:12px;font-weight:700;color:#162B75;margin:22px 0;">OR</div>
+
+            <div class="choice-card" id="choiceOther" onclick="selectSetupFor('For someone else')">
+              <div class="choice-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="#162B75"><circle cx="10" cy="8" r="4"/><path d="M3 20c0-3.5 3-6 7-6s7 2.5 7 6"/><rect x="16" y="7" width="6" height="9" rx="1.5" fill="#2364D2"/></svg>
+              </div>
+              <div>
+                <div style="font-size:14px;font-weight:800;color:#111827;">For someone else</div>
+                <div style="font-size:11px;color:#4B5563;margin-top:4px;line-height:1.35;">Assist a parent, senior citizen, or family member with medical bills &amp; care.</div>
+              </div>
+              <div class="radio-dot"></div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <button class="sec-link" style="font-size:11.5px;" onclick="openModal('modalSupport')">Need Help?</button>
+          </div>
+        </div>
+        <div class="onb-footer" style="justify-content:flex-end;">
+          <button class="btn-secondary" onclick="goScreen('splash')">Back</button>
+          <button class="btn-primary" style="min-width:120px;" onclick="goScreen('onb2')">Next</button>
+        </div>
+      </div>
+
+      <!-- ==================== STEP 2 OF 5: LOGIN OR SIGN UP ==================== -->
+      <div class="screen" id="screen-onb2">
+        <div class="onb-header">
+          <div class="brand-row">
+            <svg width="24" height="24" viewBox="0 0 40 40" fill="none"><rect x="8" y="14" width="26" height="20" rx="4" fill="#162B75"/><circle cx="10" cy="14" r="8" fill="#FFF"/><path d="M10 9V19M5 14H15" stroke="#162B75" stroke-width="3" stroke-linecap="round"/></svg>
+            <span class="brand-text"><span class="medi">MEDI</span><span class="pay">PAY</span></span>
+          </div>
+          <span class="step-pill">Step 2 of 5</span>
+        </div>
+        <div class="onb-content">
+          <h2 style="text-align:center;color:#162B75;font-size:19px;font-weight:800;">Welcome!</h2>
+          <p style="text-align:center;font-size:11.5px;color:#374151;margin:4px 0 18px;">Sign in with password, 6-digit PIN, biometrics, or continue with account</p>
+
+          <label class="input-label">Username or Mobile / Email</label>
+          <input class="input-field" id="loginIdentifier" type="text" placeholder="Email or mobile number" autocomplete="username" />
+
+          <div class="input-label">
+            <span id="loginSecretLabel">Password or 6 - Digit PIN</span>
+            <button class="sec-link" style="font-size:11px;" onclick="toggleLoginPinMode()" id="btnSwitchPin">Switch to 6 - Digit PIN</button>
+          </div>
+          <input class="input-field" id="loginSecret" type="password" placeholder="Password" autocomplete="current-password" />
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:11.5px;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="checkbox" id="login2FA" style="accent-color:#162B75;width:15px;height:15px;" />
+              <span>2FA OTP Verification</span>
+            </label>
+            <button class="sec-link" style="font-size:11px;" onclick="forgotPassword()">Forgot Password / PIN?</button>
+          </div>
+
+          <button class="btn-primary btn-full" onclick="handleLogin()">Log In</button>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;border:1px solid #E5E7EB;background:#F3F4F6;border-radius:12px;margin:16px 0;padding:12px 0;">
+            <button onclick="biometricSignIn('Fingerprint')" style="border:none;background:transparent;border-right:1px solid #D1D5DB;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;font-size:11px;font-weight:700;color:#162B75;">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#162B75" stroke-width="1.8"><path d="M12 11c0 3.5-1 6-3 8M12 7a5 5 0 015 5c0 2.5-.5 4.5-1.5 6.5M7 12a5 5 0 015-5m-8 5a9 9 0 0118 0M4 17c1-2 1.5-4 1.5-5"/></svg>
+              Fingerprint
+            </button>
+            <button onclick="biometricSignIn('Face ID')" style="border:none;background:transparent;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;font-size:11px;font-weight:700;color:#162B75;">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#162B75" stroke-width="1.8"><path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M4 17v2a1 1 0 001 1h2M17 20h2a1 1 0 001-1v-2"/><circle cx="12" cy="10" r="2.5"/><path d="M8.5 16.5c1-1.5 2-2 3.5-2s2.5.5 3.5 2"/></svg>
+              Face ID
+            </button>
+          </div>
+
+          <button onclick="ssoSignIn('Apple')" style="width:100%;background:#000;color:#fff;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;">
+            <span></span> Continue with Apple
+          </button>
+          <button onclick="ssoSignIn('Google')" style="width:100%;background:#EFEFEF;color:#111827;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+            <span style="font-weight:900;color:#4285F4;">G</span> Continue with Google
+          </button>
+
+          <div style="text-align:right;margin-top:auto;padding-top:10px;">
+            <button class="sec-link" style="font-size:11.5px;" onclick="openModal('modalSupport')">Need Help?</button>
+          </div>
+        </div>
+        <div class="onb-footer" style="justify-content:flex-end;">
+          <button class="btn-secondary" onclick="goScreen('onb1')">Back</button>
+          <button class="btn-primary" style="min-width:120px;" onclick="goScreen('onb3')">Sign up</button>
+        </div>
+      </div>
+
+      <!-- ==================== STEP 3 OF 5: GOV ID & KYC ==================== -->
+      <div class="screen" id="screen-onb3">
+        <div class="onb-header">
+          <div class="brand-row">
+            <svg width="24" height="24" viewBox="0 0 40 40" fill="none"><rect x="8" y="14" width="26" height="20" rx="4" fill="#162B75"/><circle cx="10" cy="14" r="8" fill="#FFF"/><path d="M10 9V19M5 14H15" stroke="#162B75" stroke-width="3" stroke-linecap="round"/></svg>
+            <span class="brand-text"><span class="medi">MEDI</span><span class="pay">PAY</span></span>
+          </div>
+          <span class="step-pill">Step 3 of 5</span>
+        </div>
+        <div class="onb-content">
+          <div style="font-size:10.5px;font-weight:800;color:#162B75;letter-spacing:0.4px;">IDENTITY &amp; AGE 18+ ELIGIBILITY</div>
+          <h2 style="font-size:19px;font-weight:800;color:#111827;margin:4px 0;">Government ID &amp; Health Coverage</h2>
+          <p style="font-size:11px;color:#4B5563;margin-bottom:14px;">Required for 18+ healthcare financing &amp; responsible account verification.</p>
+
+          <div style="background:#1A2E7A;border-radius:14px;padding:13px;color:#fff;margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <span style="background:rgba(255,255,255,0.16);font-size:9.5px;font-weight:800;padding:3px 8px;border-radius:6px;">VALID GOV ID • 18+ KYC</span>
+              <span id="kycBadge" style="background:#FACC15;color:#111827;font-size:9.5px;font-weight:800;padding:3px 8px;border-radius:6px;">PENDING SCAN</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+              <div id="kycThumbBox" style="width:52px;height:52px;border-radius:10px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><circle cx="11" cy="8" r="4"/><path d="M4 20c0-3.5 3-6 7-6s7 2.5 7 6"/><path d="M17 11l2 2 4-4" stroke="#93C5FD" stroke-width="2" fill="none"/></svg>
+              </div>
+              <div style="font-size:11px;line-height:1.45;">
+                <div style="font-size:13px;font-weight:800;" id="kycNamePreview">No ID scanned yet</div>
+                <div style="opacity:0.88;" id="kycDobPreview">Scan or upload a valid government ID</div>
+                <div style="opacity:0.88;" id="kycIdPreview">Select your ID type below</div>
+              </div>
+            </div>
+            <button onclick="openModal('modalScanID')" style="width:100%;background:#fff;color:#162B75;border:none;border-radius:10px;padding:10px;font-size:12.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Scan your ID
+            </button>
+          </div>
+
+          <label class="input-label">Gov ID Type</label>
+          <select class="select-field" id="onbGovType" onchange="syncKycPreview()">
+            <option value="">Select ID type</option>
+            <option>PhilSys National ID</option>
+            <option>Philippine Passport</option>
+            <option>LTO Driver's License</option>
+            <option>UMID / SSS ID</option>
+            <option>PRC Professional ID</option>
+          </select>
+
+          <label class="input-label">ID / PhilHealth No.</label>
+          <input class="input-field" id="onbIdNum" placeholder="Enter your ID or PhilHealth number" oninput="syncKycPreview()" />
+
+          <label class="input-label">PhilHealth / HMO Insurance Status</label>
+          <select class="select-field" id="onbInsStatus">
+            <option value="">Select coverage status</option>
+            <option>PhilHealth Direct Contributor + Maxicare HMO</option>
+            <option>PhilHealth Direct Contributor Only</option>
+            <option>PhilHealth Indirect / Senior / Indigent</option>
+            <option>Private HMO Only (Intellicare / Medicard)</option>
+            <option>No Insurance Coverage Yet</option>
+          </select>
+        </div>
+        <div class="onb-footer">
+          <button class="btn-ghost" onclick="goScreen('onb-income')">Skip</button>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-secondary" onclick="goBackFromKyc()">Back</button>
+            <button class="btn-primary" style="min-width:105px;" onclick="saveStep3AndNext()">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== STEP 4 OF 5 (NEW): INCOME & EMPLOYMENT ==================== -->
+      <div class="screen" id="screen-onb-income">
+        <div class="onb-header">
+          <div class="brand-row">
+            <svg width="24" height="24" viewBox="0 0 40 40" fill="none"><rect x="8" y="14" width="26" height="20" rx="4" fill="#162B75"/><circle cx="10" cy="14" r="8" fill="#FFF"/><path d="M10 9V19M5 14H15" stroke="#162B75" stroke-width="3" stroke-linecap="round"/></svg>
+            <span class="brand-text"><span class="medi">MEDI</span><span class="pay">PAY</span></span>
+          </div>
+          <span class="step-pill">Step 4 of 5</span>
+        </div>
+        <div class="onb-content">
+          <div style="font-size:10.5px;font-weight:800;color:#162B75;letter-spacing:0.4px;">FINANCIAL &amp; CREDIT PRE-QUALIFICATION</div>
+          <h2 style="font-size:19px;font-weight:800;color:#111827;margin:4px 0;">Employment &amp; Income Profile</h2>
+          <p style="font-size:11px;color:#4B5563;margin-bottom:12px;">Before making an account, tell us about your work &amp; income to unlock your personalized MediPayLater credit limit.</p>
+
+          <!-- Blue Pre-Qualification Estimate Card -->
+          <div style="background:linear-gradient(135deg,#1A2E7A,#2563EB);border-radius:14px;padding:12px 13px;color:#fff;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="background:rgba(255,255,255,0.18);font-size:9px;font-weight:800;padding:3px 8px;border-radius:6px;">ESTIMATED CREDIT PRE-QUALIFICATION</span>
+              <span id="preQualBadge" style="background:#9CA3AF;color:#fff;font-size:9px;font-weight:800;padding:3px 8px;border-radius:6px;">PENDING</span>
+            </div>
+            <div style="font-size:22px;font-weight:900;letter-spacing:-0.3px;" id="preQualLimitDisplay">₱0.00</div>
+            <div style="font-size:10px;opacity:0.9;margin-top:2px;" id="preQualSubDisplay">Choose your employment status and enter your income to see your estimate</div>
+          </div>
+
+          <label class="input-label">Employment Status</label>
+          <select class="select-field" id="incEmpStatus" onchange="onEmpStatusChange()">
+            <option value="">Select employment status</option>
+            <option value="Employed (Private Sector)">Employed (Private Sector)</option>
+            <option value="Employed (Government)">Employed (Government)</option>
+            <option value="Self-Employed / Freelancer">Self-Employed / Freelancer</option>
+            <option value="Business Owner / Entrepreneur">Business Owner / Entrepreneur</option>
+            <option value="OFW (Overseas Worker)">OFW (Overseas Filipino Worker)</option>
+            <option value="Student / Supported">Student / Supported by Family</option>
+            <option value="Retired / Senior Citizen">Retired / Senior Citizen</option>
+            <option value="Currently Unemployed">Currently Unemployed / Seeking</option>
+          </select>
+
+          <label class="input-label" id="incEmployerLabel">Employer / Company Name</label>
+          <input class="input-field" id="incEmployerName" placeholder="Company, business, or sponsor name" />
+
+          <label class="input-label">Monthly Gross Income / Allowance (PHP ₱)</label>
+          <div class="income-chips">
+            <button type="button" class="income-chip" onclick="setIncomePreset(12000, this)">&lt; ₱15k</button>
+            <button type="button" class="income-chip" onclick="setIncomePreset(22000, this)">₱15k–30k</button>
+            <button type="button" class="income-chip" onclick="setIncomePreset(35000, this)">₱30k–60k</button>
+            <button type="button" class="income-chip" onclick="setIncomePreset(65000, this)">₱60k+</button>
+          </div>
+          <input class="input-field" id="incMonthlyAmt" type="number" min="0" placeholder="Enter amount in PHP" oninput="recalcPreQual()" style="font-weight:700;" />
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div>
+              <label class="input-label" style="font-size:11px;">Length of Employment</label>
+              <select class="select-field" id="incTenure" onchange="recalcPreQual()" style="font-size:11.5px;padding:10px 8px;">
+                <option value="">Select</option>
+                <option value="Less than 6 mos">Less than 6 mos</option>
+                <option value="6 mos – 1 yr">6 mos – 1 yr</option>
+                <option value="1 – 3 yrs">1 – 3 yrs</option>
+                <option value="3+ yrs">3+ yrs</option>
+                <option value="N/A">N/A</option>
+              </select>
+            </div>
+            <div>
+              <label class="input-label" style="font-size:11px;">Pay / Income Frequency</label>
+              <select class="select-field" id="incPayFreq" style="font-size:11.5px;padding:10px 8px;">
+                <option value="">Select</option>
+                <option value="Semi-Monthly (15/30)">Semi-Monthly (15/30)</option>
+                <option value="Monthly">Monthly</option>
+                <option value="Weekly">Weekly</option>
+                <option value="Irregular / Project">Irregular / Project</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div>
+              <label class="input-label" style="font-size:11px;">Household Dependents</label>
+              <select class="select-field" id="incDependents" onchange="recalcPreQual()" style="font-size:11.5px;padding:10px 8px;">
+                <option value="">Select</option>
+                <option value="0">0 (Self only)</option>
+                <option value="1-2">1 – 2 dependents</option>
+                <option value="3-4">3 – 4 dependents</option>
+                <option value="5+">5+ dependents</option>
+              </select>
+            </div>
+            <div>
+              <label class="input-label" style="font-size:11px;">Existing Monthly Loans (₱)</label>
+              <input class="input-field" id="incExistingDebt" type="number" min="0" placeholder="0" oninput="recalcPreQual()" style="font-size:12px;padding:10px;" />
+            </div>
+          </div>
+
+          <label class="input-label">Primary Purpose for MediPay</label>
+          <select class="select-field" id="incPurpose">
+            <option value="">Select purpose</option>
+            <option>Hospital Bills &amp; Emergency Care</option>
+            <option>Maintenance Medicines &amp; Pharmacy</option>
+            <option>Diagnostic &amp; Laboratory Tests</option>
+            <option>Telemedicine &amp; Family Checkups</option>
+          </select>
+
+          <label style="display:flex;align-items:flex-start;gap:8px;font-size:10.5px;color:#374151;cursor:pointer;">
+            <input type="checkbox" id="incCertify" style="accent-color:#162B75;margin-top:2px;" />
+            <span>I certify that my declared employment and income information is accurate for MediPay healthcare credit pre-assessment.</span>
+          </label>
+        </div>
+        <div class="onb-footer">
+          <button class="btn-ghost" onclick="skipIncome()">Skip</button>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-secondary" onclick="goScreen('onb3')">Back</button>
+            <button class="btn-primary" style="min-width:105px;" onclick="saveIncomeStepAndNext()">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== STEP 5 OF 5: ACCOUNT REGISTRATION (SIGN UP) ==================== -->
+      <div class="screen" id="screen-onb4">
+        <div class="onb-header">
+          <div class="brand-row">
+            <svg width="24" height="24" viewBox="0 0 40 40" fill="none"><rect x="8" y="14" width="26" height="20" rx="4" fill="#162B75"/><circle cx="10" cy="14" r="8" fill="#FFF"/><path d="M10 9V19M5 14H15" stroke="#162B75" stroke-width="3" stroke-linecap="round"/></svg>
+            <span class="brand-text"><span class="medi">MEDI</span><span class="pay">PAY</span></span>
+          </div>
+          <span class="step-pill">Step 5 of 5</span>
+        </div>
+        <div class="onb-content">
+          <div style="font-size:11.5px;font-weight:800;color:#162B75;">Account Registration</div>
+          <h2 style="font-size:21px;font-weight:800;color:#111827;margin-bottom:10px;">Sign Up</h2>
+
+          <label class="input-label">Name</label>
+          <input class="input-field" id="regName" placeholder="e.g. Ana Reyes" autocomplete="name" />
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div>
+              <label class="input-label">Birthday</label>
+              <input class="input-field" id="regDob" type="date" aria-label="Date of birth"
+                max="" onchange="updateAgeBadge()" style="margin-bottom:11px;" />
+            </div>
+            <div>
+              <label class="input-label">Gender</label>
+              <select class="select-field" id="regGender">
+                <option value="">Select</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Prefer not to say</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="regAgeBanner" style="display:none;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:#162B75;margin-bottom:10px;"></div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+            <div>
+              <label class="input-label" style="font-size:11px;">Province</label>
+              <select class="select-field" id="regProv" style="font-size:11px;padding:9px 6px;">
+                <option value="">Select</option><option>Laguna</option><option>Cavite</option><option>Metro Manila</option><option>Batangas</option>
+              </select>
+            </div>
+            <div>
+              <label class="input-label" style="font-size:11px;">City</label>
+              <select class="select-field" id="regCity" style="font-size:11px;padding:9px 6px;">
+                <option value="">Select</option><option>Biñan City</option><option>Sta. Rosa City</option><option>Calamba City</option><option>San Pedro</option>
+              </select>
+            </div>
+            <div>
+              <label class="input-label" style="font-size:11px;">Barangay</label>
+              <select class="select-field" id="regBrgy" style="font-size:11px;padding:9px 6px;">
+                <option value="">Select</option><option>Brgy. Malaban</option><option>Brgy. Poblacion</option><option>Brgy. San Antonio</option><option>Brgy. Canlalay</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="input-label">Select the one that applies</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+            <button type="button" id="btnWithIns" onclick="toggleRegIns(true)" style="padding:9px 6px;border-radius:10px;border:1px solid #D1D5DB;background:#F3F4F6;color:#111827;font-size:11px;font-weight:700;cursor:pointer;">With Insurance / Philhealth</button>
+            <button type="button" id="btnWithoutIns" onclick="toggleRegIns(false)" style="padding:9px 6px;border-radius:10px;border:1px solid #D1D5DB;background:#F3F4F6;color:#374151;font-size:11px;font-weight:700;cursor:pointer;">Without Insurance</button>
+          </div>
+
+          <label class="input-label">Email or mobile number</label>
+          <input class="input-field" id="regEmail" type="text" placeholder="you@example.com or 09XXXXXXXXX" autocomplete="username" />
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div>
+              <label class="input-label">New Password</label>
+              <input class="input-field" id="regPass1" type="password" placeholder="At least 8 characters" autocomplete="new-password" />
+            </div>
+            <div>
+              <label class="input-label">Confirm Password</label>
+              <input class="input-field" id="regPass2" type="password" placeholder="Re-enter password" autocomplete="new-password" />
+            </div>
+          </div>
+
+          <div style="margin:2px 0 10px;padding-top:10px;border-top:1px solid #EEF0F4;">
+            <div style="font-size:13px;font-weight:800;color:#162B75;margin-bottom:9px;">Emergency Contact</div>
+            <label class="input-label">Emergency Contact Name <span style="color:#DC2626;">*</span></label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div>
+                <input class="input-field" id="regEmergencyFirst" type="text" placeholder="First name"
+                  autocomplete="off" aria-label="Emergency contact first name" />
+              </div>
+              <div>
+                <input class="input-field" id="regEmergencyLast" type="text" placeholder="Last name"
+                  autocomplete="off" aria-label="Emergency contact last name" />
+              </div>
+            </div>
+
+            <label class="input-label">Emergency Contact Relationship <span style="color:#DC2626;">*</span></label>
+            <input class="input-field" id="regEmergencyRelationship" type="text"
+              placeholder="e.g. Parent, Spouse, Sibling" autocomplete="off" />
+
+            <label class="input-label">Emergency Contact Phone Number <span style="color:#DC2626;">*</span></label>
+            <input class="input-field" id="regEmergencyPhone" type="tel"
+              placeholder="e.g. 09XXXXXXXXX" autocomplete="tel" />
+            <div style="font-size:10px;color:#6B7280;margin-top:-6px;">Enter a valid contact number.</div>
+          </div>
+
+          <label style="display:flex;align-items:flex-start;gap:8px;font-size:10.5px;color:#374151;cursor:pointer;margin-top:2px;">
+            <input type="checkbox" id="regConsent" style="accent-color:#162B75;margin-top:2px;" />
+            <span>I agree to MediPay's <b>Terms &amp; Conditions</b> and <b>Data Privacy Act Consent</b> for healthcare financing and records.</span>
+          </label>
+        </div>
+        <div class="onb-footer">
+          <span></span>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-secondary" onclick="goScreen('onb-income')">Back</button>
+            <button class="btn-primary" onclick="completeSignUp()">Create Account →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 1: HOME DASHBOARD ==================== -->
+      <div class="screen" id="screen-home">
+        <div class="pad-14">
+          <div class="wallet-hero">
+            <div class="wallet-top-row">
+              <span style="font-size:13px;font-weight:600;opacity:0.95;">MediPay Wallet Balance</span>
+              <button class="card-hub-btn" onclick="switchTab('card')">
+                <svg width="13" height="10" viewBox="0 0 24 18" fill="currentColor"><rect width="24" height="18" rx="3"/></svg>
+                Card Hub
+              </button>
+            </div>
+            <div class="wallet-balance-row">
+              <span class="wallet-amount" id="homeWalletBal">₱0.00</span>
+              <button class="topup-pill" onclick="openModal('modalTopUp')">+Top Up</button>
+            </div>
+            <div class="wallet-subgrid">
+              <div class="wallet-subbox" onclick="switchTab('paylater')">
+                <div class="lbl">Available MediPaylater ›</div>
+                <div class="val" id="homeAvailCredit">₱0.00</div>
+                <div class="sub" id="homeCreditLimitSub">of ₱0.00 limit</div>
+              </div>
+              <div class="wallet-subbox" onclick="openRewardsModal()">
+                <div class="lbl">Health Reward Points ›</div>
+                <div class="val gold" id="homeRewardPts">0 pts</div>
+                <div class="sub">Redeem voucher →</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="due-banner" id="homeDueBanner">
+            <div class="due-thumb">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm0 16H5V8h14v11z"/></svg>
+            </div>
+            <div class="due-info">
+              <div class="due-title">Upcoming Installment Due</div>
+              <div class="due-desc" id="homeDueDesc"></div>
+            </div>
+            <div class="due-right">
+              <span class="due-date-pill" id="homeDueDate"></span>
+              <button class="btn-pay-now" onclick="payActiveInstallment()">Pay Now</button>
+            </div>
+          </div>
+
+          <div class="sec-header">
+            <span class="sec-title">HEALTHCARE SERVICES &amp; TOOLS</span>
+            <span class="sec-link" style="font-size:10px;cursor:default;">0% 1st Mo. Promo</span>
+          </div>
+
+          <div class="tools-grid">
+            <button class="tool-btn" onclick="openPayBillCategory('Hospital Bills')">
+              <div class="tool-icon" style="background:#C7D2FE;color:#1E3A8A;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z"/></svg>
+              </div>
+              <span>Hospital Bill</span>
+            </button>
+            <button class="tool-btn" onclick="openPayBillCategory('Prescription Medicines')">
+              <div class="tool-icon" style="background:#A7F3D0;color:#065F46;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M4.22 11.29l7.07-7.07a5 5 0 017.07 7.07l-7.07 7.07a5 5 0 01-7.07-7.07zm9.9-4.24l-2.83 2.83 4.24 4.24 2.83-2.83a3 3 0 00-4.24-4.24z"/></svg>
+              </div>
+              <span>Medicines</span>
+            </button>
+            <button class="tool-btn" onclick="openPayBillCategory('Laboratory Tests')">
+              <div class="tool-icon" style="background:#BFDBFE;color:#1D4ED8;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6M10 3v6l-5 9a2 2 0 001.7 3h10.6a2 2 0 001.7-3l-5-9V3"/><path d="M6.5 15h11"/></svg>
+              </div>
+              <span>Clinic &amp; Labs</span>
+            </button>
+            <button class="tool-btn" onclick="openPayBillCategory('Telemedicine Consultation Fees')">
+              <div class="tool-icon" style="background:#DDD6FE;color:#5B21B6;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.8 2.3A.3.3 0 105 2H4a2 2 0 00-2 2v5a6 6 0 006 6v0a6 6 0 006-6V4a2 2 0 00-2-2h-1a.2.2 0 10.3.3"/><path d="M8 15v1a6 6 0 006 6v0a6 6 0 006-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
+              </div>
+              <span>Telemedicine</span>
+            </button>
+            <button class="tool-btn" onclick="openModal('modalProviders')">
+              <div class="tool-icon" style="background:#FECACA;color:#991B1B;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm3 8h-2v2h-2v-2H9V8h2V6h2v2h2v2z"/></svg>
+              </div>
+              <span>Providers</span>
+            </button>
+            <button class="tool-btn" onclick="openDocVault()">
+              <div class="tool-icon" style="background:#C4B5FD;color:#4C1D95;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm2 14H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+              </div>
+              <span>Doc Vault</span>
+            </button>
+            <button class="tool-btn" onclick="openRewardsModal()">
+              <div class="tool-icon" style="background:#FEF08A;color:#B45309;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 7h-2.18A3 3 0 0015 3c-1.3 0-2.4.84-2.82 2h-.36C11.4 3.84 10.3 3 9 3a3 3 0 00-2.82 4H4a2 2 0 00-2 2v3h20V9a2 2 0 00-2-2zM4 14v6a2 2 0 002 2h5v-8H4zm9 0v8h5a2 2 0 002-2v-6h-7z"/></svg>
+              </div>
+              <span>Rewards</span>
+            </button>
+            <button class="tool-btn" onclick="openModal('modalSupport')">
+              <div class="tool-icon" style="background:#E5E7EB;color:#1F2937;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
+              </div>
+              <span>24/7 Help</span>
+            </button>
+          </div>
+
+          <div class="qrph-banner" onclick="openModal('modalQRPH')">
+            <div class="qrph-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 20h2"/></svg>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:12px;font-weight:800;color:#111827;">Scan QRPH at Hospital / Pharmacy</div>
+              <div style="font-size:10px;color:#4B5563;">Cashless settlement via Wallet, Card, or MediPaylater</div>
+            </div>
+            <div style="text-align:right;">
+              <span class="instant-pill">INSTANT</span>
+              <div style="font-size:14px;font-weight:800;color:#162B75;margin-top:2px;">›</div>
+            </div>
+          </div>
+
+          <div class="sec-header">
+            <span class="sec-title">RECENT HEALTHCARE TRANSACTIONS</span>
+            <button class="sec-link" onclick="switchTab('transactions')">See All</button>
+          </div>
+          <div id="homeRecentTx"></div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 2: PAY LATER ==================== -->
+      <div class="screen" id="screen-paylater">
+        <div class="pad-14">
+          <div class="credit-hero">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span class="promo-chip">0% FIRST-MONTH INTEREST</span>
+              <span style="font-size:10px;font-weight:700;opacity:0.9;">Age 18+ KYC Active</span>
+            </div>
+            <div style="font-size:11px;opacity:0.9;">Available Healthcare Credit Limit</div>
+            <div style="font-size:25px;font-weight:800;margin:2px 0 8px;" id="plAvailLimit">₱0.00</div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;opacity:0.9;">
+              <span id="plUsedLabel">Used: ₱0.00</span>
+              <span id="plTotalLimitLabel">Total Limit: ₱0.00</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="plProgressFill" style="width:23%;"></div>
+            </div>
+            <button class="btn-draw-credit" onclick="openModal('modalDrawCredit')">
+              <span>Apply / Draw Emergency Medical Credit</span>
+            </button>
+          </div>
+
+          <div class="white-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#162B75" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M12 10h2M16 10h.01M8 14h2M12 14h2M16 14h.01M8 18h2M12 18h2"/></svg>
+                <div style="font-size:11.5px;font-weight:800;color:#111827;line-height:1.2;">INSTALLMENT &amp; FEE<br>CALCULATOR</div>
+              </div>
+              <button onclick="openModal('modalTransparentTerms')" style="background:#162B75;color:#fff;border:none;border-radius:14px;padding:5px 12px;font-size:10px;font-weight:700;cursor:pointer;">Transparent<br>Terms</button>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;margin-bottom:6px;">
+              <span>Medical Expense Amount</span>
+              <span style="color:#162B75;font-weight:800;" id="calcAmtDisplay">₱10,000.00</span>
+            </div>
+            <input type="range" id="calcSlider" min="1000" max="50000" step="500" value="10000" oninput="updateCalculator()" style="width:100%;accent-color:#162B75;margin-bottom:10px;" />
+
+            <div style="font-size:11px;font-weight:700;color:#162B75;">Select Repayment Term</div>
+            <div class="term-grid">
+              <button class="term-btn active" onclick="setCalcTerm(1, this)">1 Month (0%)</button>
+              <button class="term-btn" onclick="setCalcTerm(3, this)">3 Months</button>
+              <button class="term-btn" onclick="setCalcTerm(6, this)">6 Months</button>
+              <button class="term-btn" onclick="setCalcTerm(12, this)">12 Months</button>
+            </div>
+
+            <div class="calc-box">
+              <div class="calc-row"><span>1st Month Interest Rate</span><span style="color:#162B75;font-weight:700;">0.00% (Promo Applied)</span></div>
+              <div class="calc-row"><span>Subsequent Monthly Rate</span><span id="calcSubRate" style="font-weight:700;">0.00% (1-Month Promo)</span></div>
+              <div class="calc-row"><span>Service &amp; Processing Fee</span><span style="font-weight:700;">₱0.00</span></div>
+              <div class="calc-row total"><span>Estimated Monthly Due</span><span id="calcMonthlyDue">₱10,000.00/ month</span></div>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:11.5px;font-weight:800;color:#111827;">ACTIVE PAYMENT SCHEDULE</span>
+            <label style="display:flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;cursor:pointer;">
+              <input type="checkbox" checked style="accent-color:#162B75;" onchange="showToast('SMS/Push Reminders updated')" />
+              SMS/Push Reminders
+            </label>
+          </div>
+          <div id="activeInstallmentsList"></div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 3: PAY BILL ==================== -->
+      <div class="screen" id="screen-paybill">
+        <div class="pad-14">
+          <h2 style="font-size:16px;font-weight:800;color:#111827;">Pay Healthcare Expense</h2>
+          <p style="font-size:11px;color:#4B5563;margin:2px 0 10px;">Select expense category, accredited facility, and preferred payment channel.</p>
+
+          <div style="font-size:11.5px;font-weight:800;color:#111827;margin-bottom:6px;">1. Health Care Expense Category</div>
+          <div class="cat-grid" id="payCatGrid">
+            <button class="cat-pill active" onclick="selectPayCat('Hospital Bills', this)">🏥 Hospital Bills</button>
+            <button class="cat-pill" onclick="selectPayCat('Telemedicine Consultation Fees', this)">🩺 Telemedicine Consultation Fees</button>
+            <button class="cat-pill" onclick="selectPayCat('Prescription Medicines', this)">💊 Prescription Medicines</button>
+            <button class="cat-pill" onclick="selectPayCat('Laboratory Tests', this)">🧪 Laboratory Tests</button>
+            <button class="cat-pill" onclick="selectPayCat('Diagnostic Procedures', this)">🩻 Diagnostic Procedures</button>
+            <button class="cat-pill" onclick="selectPayCat('Emergency Healthcare Services', this)">🚑 Emergency Healthcare Services</button>
+          </div>
+
+          <div style="font-size:11.5px;font-weight:800;color:#111827;margin-bottom:5px;">2. Accredited Healthcare Provider</div>
+          <select class="select-field" id="payProvider" style="background:#fff;margin-bottom:8px;">
+            <option>Perpetual Help Medical Center - Biñan (Hospital)</option>
+            <option>Mercury Drug - Biñan Poblacion (Pharmacy)</option>
+            <option>KonsultaMD / MediPay Telehealth Hub</option>
+            <option>Hi-Precision Diagnostics - Sta. Rosa / Biñan</option>
+            <option>Biñan Doctors Hospital - Inc.</option>
+          </select>
+
+          <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:8px;">
+            <div>
+              <label class="input-label" style="font-size:11px;">SOA/Reference No.</label>
+              <input class="input-field" id="payRefNo" placeholder="Optional" style="background:#fff;" />
+            </div>
+            <div>
+              <label class="input-label" style="font-size:11px;">Amount Due (PHP ₱)</label>
+              <input class="input-field" id="payAmount" type="number" min="0" placeholder="0.00" oninput="recalcPaySummary()" style="background:#fff;font-weight:700;" />
+            </div>
+          </div>
+
+          <div style="background:#F7EFE4;border-radius:12px;padding:10px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="font-size:11px;font-weight:800;color:#111827;">Apply Health Reward Voucher</span>
+              <button class="sec-link" style="color:#16A34A;font-size:11px;" onclick="openRewardsModal()">+Get Vouchers</button>
+            </div>
+            <select class="select-field" id="payVoucherSelect" onchange="recalcPaySummary()" style="background:#fff;margin-bottom:0;font-size:11.5px;"></select>
+          </div>
+
+          <div style="font-size:11.5px;font-weight:800;color:#111827;margin-bottom:6px;">3. Payment Channel</div>
+          <div class="channel-grid" id="payChannelGrid">
+            <button class="channel-btn active" onclick="selectPayChannel('MediPay Wallet', this)">
+              <span>💳</span>
+              <div><div class="ct">MediPay Wallet</div><div class="cs" id="pbWalletSub">Instant • Balance ₱0.00</div></div>
+            </button>
+            <button class="channel-btn" onclick="selectPayChannel('MediPayLater', this)">
+              <span>🤝</span>
+              <div><div class="ct">MediPayLater</div><div class="cs">0% 1st Mo • Credit Line</div></div>
+            </button>
+            <button class="channel-btn" onclick="selectPayChannel('MediPay Card', this)">
+              <span>🪪</span>
+              <div><div class="ct">MediPay Card</div><div class="cs">Virtual / Physical Card</div></div>
+            </button>
+            <button class="channel-btn" onclick="selectPayChannel('QRPH Scan/Pay', this)">
+              <span>📱</span>
+              <div><div class="ct">QRPH Scan/Pay</div><div class="cs">Universal PH QR</div></div>
+            </button>
+            <button class="channel-btn" onclick="selectPayChannel('E-Wallets (GCash)', this)">
+              <span>📲</span>
+              <div><div class="ct">E-Wallets (GCash/...)</div><div class="cs">Linked Mobile Wallet</div></div>
+            </button>
+            <button class="channel-btn" onclick="selectPayChannel('Online Banking', this)">
+              <span>🏦</span>
+              <div><div class="ct">Online Banking</div><div class="cs">BDO / BPI / UnionBank</div></div>
+            </button>
+            <button class="channel-btn" onclick="selectPayChannel('Credit / Debit Card', this)">
+              <span>💳</span>
+              <div><div class="ct">Credit / Debit Card</div><div class="cs">Visa / Mastercard</div></div>
+            </button>
+            <button class="channel-btn" onclick="selectPayChannel('OTC Payment Center', this)">
+              <span>🏪</span>
+              <div><div class="ct">OTC Payment Center</div><div class="cs">7-Eleven / Palawan / Bayad</div></div>
+            </button>
+          </div>
+
+          <div class="summary-navy">
+            <div class="row"><span>Subtotal</span><span id="pbSubtotal">₱2,500.00</span></div>
+            <div class="row" style="color:#FBBF24;"><span>Voucher Discount</span><span id="pbDiscount">-₱0.00</span></div>
+            <div class="row" style="color:#4ADE80;"><span>Points Earned (Eligible Healthcare Tx)</span><span id="pbPtsEarned">+25 pts</span></div>
+            <div class="total-row"><span>TOTAL PAYABLE</span><span id="pbTotal">₱2,500.00</span></div>
+            <button onclick="executePayBill()" style="width:100%;margin-top:10px;background:#4B98F8;color:#fff;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:800;cursor:pointer;">
+              Confirm &amp; Pay Healthcare Bill →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 4: MEDIPAY CARD ==================== -->
+      <div class="screen" id="screen-card">
+        <div class="pad-14">
+          <div class="seg-toggle">
+            <button class="seg-btn active" id="btnVirtualTab" onclick="setCardType('VIRTUAL')">📱 Virtual MediPay Card</button>
+            <button class="seg-btn" id="btnPhysicalTab" onclick="setCardType('PHYSICAL')">💳 Physical Health Card</button>
+          </div>
+
+          <div class="card-flip-wrap" onclick="flipCard()">
+            <div class="card-flip-inner" id="cardFlipInner">
+              <div class="medi-card-face" id="cardFrontFace">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <span style="font-weight:900;font-size:17px;">MEDI<span style="color:#93C5FD;">PAY</span></span>
+                    <span id="cardModeBadge" style="background:rgba(255,255,255,0.25);font-size:8.5px;font-weight:800;padding:2px 6px;border-radius:6px;">VIRTUAL</span>
+                  </div>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg>
+                </div>
+                <div>
+                  <div style="font-size:9px;letter-spacing:0.6px;opacity:0.85;margin-bottom:3px;">HEALTHCARE PAYMENT CARD</div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <span id="cardNumberDisplay" style="font-size:16px;font-weight:800;letter-spacing:1.2px;">•••• •••• •••• ••••</span>
+                    <button onclick="event.stopPropagation(); toggleMaskCard()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:6px;padding:3px 7px;font-size:10px;cursor:pointer;">👁</button>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:flex-end;font-size:10px;">
+                  <div>
+                    <div style="opacity:0.75;font-size:8px;">CARDHOLDER</div>
+                    <div style="font-weight:800;font-size:11px;" id="cardHolderName">YOUR NAME</div>
+                  </div>
+                  <div>
+                    <div style="opacity:0.75;font-size:8px;">VALID THRU</div>
+                    <div style="font-weight:800;" id="cardExpiry">--/--</div>
+                  </div>
+                  <div>
+                    <div style="opacity:0.75;font-size:8px;">CVV</div>
+                    <div style="font-weight:800;" id="cardCvvFront">•••</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="medi-card-face medi-card-back">
+                <div class="mag-stripe"></div>
+                <div class="sig-strip">
+                  <span>AUTHORIZED SIGNATURE</span>
+                  <span id="cardCvvBack">CVV: •••</span>
+                </div>
+                <div style="padding:10px 16px 0;font-size:9.5px;line-height:1.4;opacity:0.92;">
+                  Valid at all MediPay-accredited hospitals, clinics, pharmacies, diagnostic centers, &amp; RHU nationwide. Linked to wallet and MediPayLater.
+                  <div style="margin-top:8px;font-weight:800;">24/7 Hotline: (02) 8888-MEDI</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center;font-size:10px;color:#4B5563;margin-bottom:10px;">↻ Tap Card to Flip • Linked Wallet &amp; Credit Line</div>
+
+          <div class="white-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-size:11px;color:#4B5563;">Combined Card Purchasing Power</div>
+                <div style="font-size:23px;font-weight:800;color:#111827;" id="cardPowerAmt">₱ 0.00</div>
+              </div>
+              <span id="cardStatusBadge" style="background:#162B75;color:#fff;font-size:10px;font-weight:700;padding:5px 10px;border-radius:12px;">Active and Linked</span>
+            </div>
+            <hr style="border:none;border-top:1px solid #E5E7EB;margin:10px 0;">
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px;">
+              <span style="color:#4B5563;">Daily Healthcare Spend Limit</span>
+              <span style="font-weight:800;color:#111827;" id="cardSpendLimitTxt">₱25,000.00</span>
+            </div>
+            <input type="range" min="5000" max="50000" step="2500" value="25000" id="cardSpendSlider" oninput="updateCardSpendLimit(this.value)" style="width:100%;accent-color:#162B75;" />
+          </div>
+
+          <div class="white-card">
+            <div style="font-size:12px;font-weight:800;color:#162B75;margin-bottom:10px;">CARD SECURITY &amp; CONTROL</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:#F3F4F6;padding:10px 12px;border-radius:12px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:18px;">❄️</span>
+                <div>
+                  <div style="font-size:12px;font-weight:800;">Freeze / Lock Card</div>
+                  <div style="font-size:10px;color:#6B7280;">Temporarily block all card charges</div>
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="freezeCardToggle" onchange="toggleFreezeCard(this.checked)">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="sec-ctrl-grid">
+              <div class="ctrl-tile" onclick="openModal('modalLinkCard')">
+                <div style="font-size:18px;margin-bottom:4px;">🔗</div>
+                <div style="font-size:11.5px;font-weight:800;color:#162B75;">Active / Link Card</div>
+                <div style="font-size:9.5px;color:#4B5563;">Bind physical card ID</div>
+              </div>
+              <div class="ctrl-tile danger" onclick="openModal('modalReportCard')">
+                <div style="font-size:18px;margin-bottom:4px;">⚠️</div>
+                <div style="font-size:11.5px;font-weight:800;">Report Loss / Stolen</div>
+                <div style="font-size:9.5px;">Permanent Block / Replace</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 5: TRANSACTIONS ==================== -->
+      <div class="screen" id="screen-transactions">
+        <div class="pad-14">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <h2 style="font-size:18px;font-weight:800;color:#111827;">Transaction History</h2>
+              <div style="font-size:10.5px;color:#4B5563;">Tap any record to view &amp; save digital receipt</div>
+            </div>
+            <button onclick="exportTransactionsCSV()" style="background:#D1D5DB;border:none;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;">
+              📤 Export
+            </button>
+          </div>
+
+          <div class="filter-row">
+            <button class="filter-pill fp-all active" onclick="setTxFilter('All', this)">All</button>
+            <button class="filter-pill fp-comp" onclick="setTxFilter('Completed', this)">Completed</button>
+            <button class="filter-pill fp-pend" onclick="setTxFilter('Pending', this)">Pending</button>
+            <button class="filter-pill fp-fail" onclick="setTxFilter('Failed', this)">Failed</button>
+          </div>
+
+          <div id="txHistoryList"></div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 6: PROFILE ==================== -->
+      <div class="screen" id="screen-profile">
+        <div class="pad-14">
+          <div class="white-card" style="display:flex;align-items:center;gap:12px;">
+            <div id="profAvatar" style="width:58px;height:58px;border-radius:12px;background:#4B96F7;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;flex-shrink:0;">?</div>
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="font-size:15px;font-weight:800;color:#111827;" id="profFullName">Your name</span>
+                <span style="background:#162B75;color:#fff;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;">✓</span>
+              </div>
+              <div style="font-size:11px;color:#4B5563;margin:3px 0 6px;" id="profDobSex">Complete your profile</div>
+              <div style="display:flex;gap:6px;">
+                <span style="background:#DBEAFE;border:1px solid #93C5FD;color:#1E40AF;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:8px;" id="profIdBadge">ID Not Verified</span>
+                <span style="background:#DBEAFE;border:1px solid #93C5FD;color:#1E40AF;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:8px;" id="profAgeBadge">18+ Qualified</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Patient Demographics -->
+          <div class="white-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <span style="font-size:12px;font-weight:800;color:#162B75;">PATIENT DEMOGRAPHICS</span>
+              <button class="sec-link" onclick="openModal('modalEditProfile')">Edit Details</button>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1.2fr;gap:8px;font-size:11px;margin-bottom:8px;">
+              <div><div style="color:#6B7280;font-size:10px;">Mobile Number</div><b id="profPhone">Not set</b></div>
+              <div><div style="color:#6B7280;font-size:10px;">Email Address</div><b id="profEmail">Not set</b></div>
+            </div>
+            <div style="font-size:11px;margin-bottom:8px;">
+              <div style="color:#6B7280;font-size:10px;">Residential Address</div>
+              <b id="profAddress" style="color:#162B75;">Not set</b>
+            </div>
+            <div style="font-size:11px;">
+              <div style="color:#6B7280;font-size:10px;">Emergency Contact</div>
+              <b id="profEmergency" style="color:#162B75;">Not set</b>
+            </div>
+          </div>
+
+          <!-- NEW: Employment & Income Profile Card -->
+          <div class="white-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span style="font-size:12px;font-weight:800;color:#162B75;">💼 EMPLOYMENT &amp; INCOME PROFILE</span>
+              <button class="sec-link" onclick="goScreen('onb-income')">Update</button>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;margin-bottom:7px;">
+              <div><div style="color:#6B7280;font-size:10px;">Employment Status</div><b id="profEmpStatus">Not set</b></div>
+              <div><div style="color:#6B7280;font-size:10px;">Monthly Gross Income</div><b id="profMonthlyIncome" style="color:#16A34A;">Not set</b></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;">
+              <div><div style="color:#6B7280;font-size:10px;">Employer / Source</div><b id="profEmployer">Not set</b></div>
+              <div><div style="color:#6B7280;font-size:10px;">Tenure &amp; Pay Cycle</div><b id="profTenureFreq">Not set</b></div>
+            </div>
+          </div>
+
+          <!-- PhilHealth & HMO Coverage -->
+          <div class="white-card">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+              <span style="font-size:18px;">🛡️</span>
+              <span style="font-size:12px;font-weight:800;color:#162B75;">PHILHEALTH &amp; HMO COVERAGE</span>
+            </div>
+            <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:10px;font-size:11px;">
+              <div style="display:grid;grid-template-columns:1fr 1.2fr;margin-bottom:6px;">
+                <span style="color:#4B5563;">PhilHealth PIN</span>
+                <b id="profPhilhealth">Not set</b>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1.2fr;margin-bottom:6px;">
+                <span style="color:#4B5563;">Membership Category</span>
+                <b id="profMemberCat">Not set</b>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1.2fr;">
+                <span style="color:#4B5563;">Linked HMO Provider</span>
+                <b id="profHmo">None linked</b>
+              </div>
+            </div>
+          </div>
+
+          <!-- Linked Payment Accounts -->
+          <div class="white-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span style="font-size:11.5px;font-weight:800;color:#162B75;">LINKED PAYMENT ACCOUNT</span>
+              <button class="sec-link" onclick="openModal('modalLinkBank')">+ LINK ACCOUNT</button>
+            </div>
+            <div id="linkedAccountsList"></div>
+          </div>
+
+          <!-- Security & Privacy Settings -->
+          <div class="white-card">
+            <div style="font-size:11.5px;font-weight:800;color:#162B75;margin-bottom:10px;">SECURITY &amp; PRIVACY SETTINGS</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <div>
+                <div style="font-size:12px;font-weight:800;">Biometric Authentication</div>
+                <div style="font-size:10px;color:#6B7280;">Use Face / Fingerprint for login &amp; payments</div>
+              </div>
+              <input type="checkbox" checked onchange="showToast('Biometric setting saved')" style="width:18px;height:18px;accent-color:#162B75;" />
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <div>
+                <div style="font-size:12px;font-weight:800;">2FA OTP Verification</div>
+                <div style="font-size:10px;color:#6B7280;">SMS/App OTP verification on sign-in</div>
+              </div>
+              <input type="checkbox" checked onchange="showToast('2FA OTP setting saved')" style="width:18px;height:18px;accent-color:#162B75;" />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <button onclick="openModal('modalChangePin')" style="background:#D8E7FF;border:none;border-radius:10px;padding:9px;font-size:11px;font-weight:800;color:#162B75;cursor:pointer;">🔑 Change 6-Digit PIN</button>
+              <button onclick="openDocVault()" style="background:#D8E7FF;border:none;border-radius:10px;padding:9px;font-size:11px;font-weight:800;color:#162B75;cursor:pointer;">📄 Document Vault</button>
+            </div>
+          </div>
+
+          <button onclick="secureLogout()" style="width:100%;background:#FEE2E2;border:1.5px solid #FCA5A5;color:#DC2626;border-radius:14px;padding:12px;font-size:13px;font-weight:800;cursor:pointer;margin-bottom:10px;">
+            ↪ Secure Logout
+          </button>
+
+          <div style="text-align:center;font-size:9.5px;color:#6B7280;line-height:1.4;padding-bottom:8px;">
+            MediPay v1.0 • University of Perpetual Help Dr. Jose G. Tamayo Medical University - College of Nursing (N3I Group 35)
+          </div>
+        </div>
+      </div>
+
+    </div><!-- End app-body -->
+
+    <div class="bottom-nav" id="bottomNav" style="display:none;">
+      <button class="nav-item active" data-tab="home" onclick="switchTab('home')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="nav-item" data-tab="paylater" onclick="switchTab('paylater')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="15" cy="7" r="4"/><path d="M2 17h11l4 2-4 2H4l-2-4z"/></svg>
+        <span>Pay Later</span>
+      </button>
+      <button class="nav-item" data-tab="paybill" onclick="switchTab('paybill')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg>
+        <span>Pay Bill</span>
+      </button>
+      <button class="nav-item" data-tab="card" onclick="switchTab('card')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20" stroke="#fff" stroke-width="2"/></svg>
+        <span>MediPay Card</span>
+      </button>
+      <button class="nav-item" data-tab="transactions" onclick="switchTab('transactions')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3h16v18l-2.5-1.5L15 21l-3-1.5L9 21l-2.5-1.5L4 21V3z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+        <span>Transactions</span>
+      </button>
+      <button class="nav-item" data-tab="profile" onclick="switchTab('profile')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span>Profile</span>
+      </button>
+    </div>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <div class="modal-backdrop" id="modalScanID">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">Scan or Upload Government ID</div>
+          <button class="modal-close" onclick="closeModal('modalScanID')">✕</button>
+        </div>
+        <div class="scan-box" id="idScanBox">
+          <div class="scan-beam"></div>
+          <div id="idPreviewArea" style="font-size:12px;color:#1E3A8A;">
+            <div style="font-size:32px;margin-bottom:6px;">🪪</div>
+            <b>Upload Photo of Valid Gov ID</b>
+            <div style="font-size:10.5px;color:#4B5563;margin-top:4px;">Supports PhilSys National ID, Passport, Driver's License, or UMID. Stored securely in Doc Vault.</div>
+          </div>
+        </div>
+        <input type="file" id="idFileInput" accept="image/*,.pdf" style="display:none;" onchange="handleIDFileUpload(this)" />
+        <button class="btn-primary btn-full" style="margin-bottom:8px;" onclick="document.getElementById('idFileInput').click()">📁 Upload ID Image / Camera</button>
+        <button class="btn-secondary btn-full" onclick="simulateIDScan()">📷 Simulate Live Camera Scan (Demo)</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalTopUp">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">Top Up MediPay Wallet</div>
+          <button class="modal-close" onclick="closeModal('modalTopUp')">✕</button>
+        </div>
+        <p style="font-size:11px;color:#4B5563;margin-bottom:10px;">Add funds from your linked bank or e-wallet for instant cashless healthcare payments</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+          <button class="btn-secondary" style="padding:8px;font-size:12px;background:#fff;border:1px solid #D1D5DB;" onclick="document.getElementById('topupAmtInput').value=1000">₱1,000</button>
+          <button class="btn-secondary" style="padding:8px;font-size:12px;background:#fff;border:1px solid #D1D5DB;" onclick="document.getElementById('topupAmtInput').value=3000">₱3,000</button>
+          <button class="btn-secondary" style="padding:8px;font-size:12px;background:#fff;border:1px solid #D1D5DB;" onclick="document.getElementById('topupAmtInput').value=5000">₱5,000</button>
+        </div>
+        <label class="input-label">Amount (PHP ₱)</label>
+        <input class="input-field" id="topupAmtInput" type="number" min="0" placeholder="0.00" style="font-weight:800;color:#162B75;font-size:15px;" />
+        <label class="input-label">Funding Source</label>
+        <select class="select-field" id="topupSource"></select>
+        <button class="btn-primary btn-full" onclick="confirmTopUp()">Confirm Top Up</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalRewards">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">MediPay Health Rewards</div>
+          <button class="modal-close" onclick="closeModal('modalRewards')">✕</button>
+        </div>
+        <div style="background:linear-gradient(135deg,#F59E0B,#FDE047);border-radius:14px;padding:14px;color:#fff;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:10px;font-weight:800;color:#78350F;">AVAILABLE HEALTH POINTS</div>
+            <div style="font-size:26px;font-weight:900;text-shadow:0 1px 2px rgba(0,0,0,0.15);" id="modalPtsDisplay">0 pts</div>
+            <div style="font-size:9.5px;color:#78350F;">Earned automatically on eligible healthcare payments</div>
+          </div>
+          <div style="font-size:36px;">🏅</div>
+        </div>
+        <div style="font-size:10.5px;font-weight:800;color:#374151;margin-bottom:8px;">REDEEM HEALTHCARE VOUCHERS</div>
+        <div id="rewardsCatalog"></div>
+        <div style="font-size:10.5px;font-weight:800;color:#374151;margin:12px 0 6px;">MY ACTIVE VOUCHERS (<span id="activeVouchersCount">1</span>)</div>
+        <div id="myActiveVouchersList"></div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalProviders">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">Accredited Healthcare Directory</div>
+          <button class="modal-close" onclick="closeModal('modalProviders')">✕</button>
+        </div>
+        <input class="input-field" id="providerSearch" placeholder="🔍 Search hospital, clinic, pharmacy, RHU, Biñan..." oninput="renderProvidersList()" style="background:#fff;" />
+        <div id="providersListContainer"></div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalDocVault">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">Patient Document Vault</div>
+          <button class="modal-close" onclick="closeModal('modalDocVault')">✕</button>
+        </div>
+        <input type="file" id="vaultFileInput" accept=".pdf,image/*" style="display:none;" onchange="handleVaultUpload(this)" />
+        <div onclick="document.getElementById('vaultFileInput').click()" style="border:2px dashed #2364D2;background:#DBEAFE;border-radius:14px;padding:14px;text-align:center;cursor:pointer;margin-bottom:12px;">
+          <div style="font-size:24px;">📄⬆</div>
+          <div style="font-size:11.5px;font-weight:800;color:#162B75;">Upload Medical Bill, Prescriptions, or Insurance File</div>
+          <div style="font-size:9.5px;color:#374151;">Encrypted HIPAA / Data Privacy Act Compliant storage</div>
+        </div>
+        <div id="vaultFilesList"></div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalDocPreview">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title" id="docPreviewTitle">Document Preview</div>
+          <button class="modal-close" onclick="closeModal('modalDocPreview')">✕</button>
+        </div>
+        <div id="docPreviewBody" style="font-size:12px;color:#374151;"></div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalSupport">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">24/7 Customer Support &amp; Help Center</div>
+          <button class="modal-close" onclick="closeModal('modalSupport')">✕</button>
+        </div>
+        <div style="background:#162B75;color:#fff;border-radius:14px;padding:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div>
+            <div style="font-size:13px;font-weight:800;">24/7 Live Healthcare Support</div>
+            <div style="font-size:10px;opacity:0.85;">Average response time: under 2 minutes</div>
+          </div>
+          <span style="background:#2563EB;padding:4px 10px;border-radius:10px;font-size:10.5px;font-weight:800;">Online</span>
+        </div>
+        <div style="border:1px solid #D1D5DB;border-radius:12px;padding:10px;margin-bottom:10px;">
+          <div id="supportChatLog" style="max-height:130px;overflow-y:auto;font-size:11px;margin-bottom:8px;">
+            <div style="background:#EFF6FF;padding:8px;border-radius:8px;margin-bottom:6px;">
+              <b style="color:#162B75;">MediPay Agent Ana:</b> Mabuhay! How can we assist with your medical payment, MediPayLater plan, or account recovery today?
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <input id="supportInput" class="input-field" placeholder="Type a message or concern..." style="margin:0;flex:1;padding:8px 10px;" onkeydown="if(event.key==='Enter')sendSupportMsg()" />
+            <button class="btn-primary" style="padding:8px 12px;" onclick="sendSupportMsg()">Send</button>
+          </div>
+        </div>
+        <div style="font-size:10.5px;font-weight:800;color:#4B5563;margin-bottom:6px;">QUICK FAQS &amp; DISPUTE TOOLS</div>
+        <div onclick="toggleFaq()" style="background:#F3F4F6;padding:9px 10px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;margin-bottom:6px;">
+          How does 0% First-Month Interest work?
+          <div id="faqAns" style="display:none;font-weight:400;color:#4B5563;margin-top:5px;">All verified 18+ users enjoy 0.00% interest and ₱0 processing fee on their first 30 days of MediPayLater healthcare bills.</div>
+        </div>
+        <div onclick="fileDisputeDemo()" style="background:#F3F4F6;padding:9px 10px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;">
+          ▶ File a Payment Dispute or Account Recovery
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalQRPH">
+      <div class="modal-card" style="text-align:center;">
+        <div class="modal-header">
+          <div class="modal-title">QRPH Universal Healthcare Pay</div>
+          <button class="modal-close" onclick="closeModal('modalQRPH')">✕</button>
+        </div>
+        <div style="border:2px solid #93C5FD;border-radius:18px;padding:18px;display:inline-block;margin:8px 0 12px;">
+          <svg width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="#162B75" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          <div style="font-size:11px;font-weight:800;color:#162B75;margin-top:6px;">QR PH • MEDIPAY</div>
+        </div>
+        <div style="font-size:13px;font-weight:800;color:#111827;">Scan Merchant QR or Present Code</div>
+        <p style="font-size:11px;color:#4B5563;margin:4px 0 14px;">Accepted at all QRPH-enabled hospitals, pharmacies &amp; clinics nationwide</p>
+        <button class="btn-primary btn-full" onclick="simulateScanQRPH()">Simulate Scan Hospital QRPH Code</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalLinkCard">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title" style="font-size:13.5px;color:#162B75;">ACTIVATE / LINK PHYSICAL MEDIPAY CARD</div>
+          <button class="modal-close" onclick="closeModal('modalLinkCard')">✕</button>
+        </div>
+        <p style="font-size:11px;color:#4B5563;margin-bottom:12px;">Enter the 16 digit number and activation code printed on your Physical MediPay health card.</p>
+        <label class="input-label">Physical Card Number</label>
+        <input class="input-field" id="linkCardNum" inputmode="numeric" maxlength="19" placeholder="16-digit card number" />
+        <label class="input-label">3-Digit Activation Code</label>
+        <input class="input-field" id="linkCardCode" inputmode="numeric" maxlength="3" placeholder="3-digit code" />
+        <button class="btn-primary btn-full" onclick="activatePhysicalCard()">LINK &amp; ACTIVATE CARD</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalReportCard">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title" style="font-size:13.5px;color:#162B75;">REPORT LOSS OR STOLEN CARD</div>
+          <button class="modal-close" onclick="closeModal('modalReportCard')">✕</button>
+        </div>
+        <div style="background:#FEE2E2;border-radius:12px;padding:12px;color:#B91C1C;margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:800;margin-bottom:4px;">⚠️ Immediate Security Action</div>
+          <div style="font-size:10.5px;">Reporting your card will permanently deactivate the current card number and issue a free replacement virtual card immediately.</div>
+        </div>
+        <label class="input-label" style="color:#B91C1C;">Reason for Replacement</label>
+        <input class="input-field" id="lossReason" placeholder="e.g. Lost / Misplaced Physical Card" />
+        <button onclick="confirmReportLostCard()" style="width:100%;background:#DC2626;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:800;cursor:pointer;">Permanently Block &amp; Request Replacement</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalDrawCredit">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">Draw Emergency Medical Credit</div>
+          <button class="modal-close" onclick="closeModal('modalDrawCredit')">✕</button>
+        </div>
+        <label class="input-label">Hospital / Purpose</label>
+        <input class="input-field" id="drawPurpose" placeholder="Hospital or purpose" />
+        <label class="input-label">Credit Amount (₱)</label>
+        <input class="input-field" id="drawAmount" type="number" min="0" placeholder="0.00" />
+        <label class="input-label">Repayment Plan</label>
+        <select class="select-field" id="drawMonths">
+          <option value="1">1 Month (0% Interest)</option>
+          <option value="3" selected>3 Months (0% 1st Month)</option>
+          <option value="6">6 Months (0% 1st Month)</option>
+        </select>
+        <button class="btn-primary btn-full" onclick="executeDrawCredit()">Disburse to MediPay Wallet</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalReceipt">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">Digital Healthcare Receipt</div>
+          <button class="modal-close" onclick="closeModal('modalReceipt')">✕</button>
+        </div>
+        <div id="receiptBody" style="background:#F8FAFC;border:1px dashed #CBD5E1;border-radius:12px;padding:14px;font-size:12px;"></div>
+        <button class="btn-primary btn-full" style="margin-top:12px;" onclick="window.print()">🖨 Print / Save PDF Receipt</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalEditProfile">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">Edit Patient Demographics</div>
+          <button class="modal-close" onclick="closeModal('modalEditProfile')">✕</button>
+        </div>
+        <label class="input-label">Full Name</label>
+        <input class="input-field" id="editProfName" />
+        <label class="input-label">Mobile Number</label>
+        <input class="input-field" id="editProfPhone" />
+        <label class="input-label">Email Address</label>
+        <input class="input-field" id="editProfEmail" />
+        <label class="input-label">Residential Address</label>
+        <input class="input-field" id="editProfAddr" />
+        <label class="input-label">Emergency Contact</label>
+        <input class="input-field" id="editProfEmerg" />
+        <button class="btn-primary btn-full" onclick="saveProfileEdits()">Save Changes</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalLinkBank">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">Link Payment Account</div>
+          <button class="modal-close" onclick="closeModal('modalLinkBank')">✕</button>
+        </div>
+        <label class="input-label">Bank / E-Wallet</label>
+        <select class="select-field" id="newBankName">
+          <option value="BPI">BPI Savings</option>
+          <option value="UnionBank">UnionBank Personal</option>
+          <option value="Maya">Maya E-Wallet</option>
+        </select>
+        <label class="input-label">Account / Mobile Number</label>
+        <input class="input-field" id="newBankAcct" inputmode="numeric" placeholder="Account or mobile number" />
+        <button class="btn-primary btn-full" onclick="addLinkedAccount()">Verify &amp; Link Account</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalChangePin">
+      <div class="modal-card">
+        <div class="modal-header"><div class="modal-title">Change 6-Digit PIN</div><button class="modal-close" onclick="closeModal('modalChangePin')">✕</button></div>
+        <label class="input-label">Current PIN (leave blank if none yet)</label><input class="input-field" id="curPinVal" type="password" inputmode="numeric" maxlength="6" placeholder="••••••" />
+        <label class="input-label">New 6-Digit PIN</label><input class="input-field" id="newPinVal" type="password" maxlength="6" placeholder="••••••" />
+        <button class="btn-primary btn-full" onclick="updatePin()">Update PIN</button>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalTransparentTerms">
+      <div class="modal-card">
+        <div class="modal-header"><div class="modal-title">Transparent Credit Terms</div><button class="modal-close" onclick="closeModal('modalTransparentTerms')">✕</button></div>
+        <p style="font-size:12px;line-height:1.5;color:#374151;">• <b>0% 1st-Month Promo:</b> Zero interest for the first 30 days on all hospital &amp; pharmacy bills.<br>• <b>No Hidden Fees:</b> ₱0 service or processing charge.<br>• <b>Subsequent Months:</b> 1.50% flat monthly add-on rate for 3–12 month plans.<br>• <b>Eligibility:</b> Verified 18+ Philippine resident.</p>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalGuide">
+      <div class="modal-card">
+        <div class="modal-header"><div class="modal-title">MediPay Quick Guide</div><button class="modal-close" onclick="closeModal('modalGuide')">✕</button></div>
+        <p style="font-size:12px;line-height:1.5;color:#374151;">Welcome to <b>MediPay v1.0</b>! Top up your wallet, pay accredited hospitals &amp; pharmacies via QRPH or Pay Bill, split large bills with 0% first-month MediPayLater, store medical records in Doc Vault, and earn Health Reward Points on every transaction.</p>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalNotifs">
+      <div class="modal-card">
+        <div class="modal-header"><div class="modal-title" id="notifTitle">Notifications (0)</div><button class="modal-close" onclick="closeModal('modalNotifs')">✕</button></div>
+        <div id="notifList" style="font-size:11.5px;display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const dr = document.getElementById('dotsRight'), dl = document.getElementById('dotsLeft');
+  for(let i=0;i<32;i++){ dr.innerHTML += '<span></span>'; dl.innerHTML += '<span></span>'; }
+
+  const STORAGE_KEY = 'medipay_app_state_v3';   // new key so the old preset data is never loaded
+  const DEFAULT_STATE = {
+    loggedIn: false,
+    account: null,            // { key, type, passHash, pinHash } set when the visitor signs up
+    setupFor: 'Yourself',
+    kycVerified: false,
+    idPhotoData: null,
+    user: {
+      name: '', shortName: '', dob: '', gender: '',
+      province: '', city: '', barangay: '',
+      email: '', phone: '', emergency: '', emergencyContact: null, patientId: '',
+      govIdType: '', idNumber: '', insuranceStatus: '', withInsurance: null,
+      employmentStatus: '', employerName: '', monthlyIncome: null,
+      tenure: '', payFrequency: '', dependents: '', existingDebt: 0, primaryPurpose: ''
+    },
+    walletBalance: 0,
+    creditLimit: 0,
+    creditUsed: 0,
+    rewardPoints: 0,
+    card: { mode: 'VIRTUAL', number: '', cvv: '', expiry: '', masked: true, frozen: false, physicalLinked: false, spendLimit: 25000 },
+    vouchers: [
+      { id: 'v_welcome', title: '₱150 Welcome Health Discount', code: 'WELCOME150', amount: 150 }
+    ],
+    installments: [],
+    transactions: [],
+    vaultDocs: [],
+    linkedAccounts: []
+  };
+
+  let state = loadState();
+  let currentTab = 'home';
+  let currentTxFilter = 'All';
+  let calcMonths = 1;
+  let selectedPayCat = 'Hospital Bills';
+  let selectedPayChannel = 'MediPay Wallet';
+  let estimatedCreditLimit = state.creditLimit || 0;
+  let pendingOnboarding = false;
+  let pcMode = 'create';
+
+  function loadState() {
+    const fresh = JSON.parse(JSON.stringify(DEFAULT_STATE));
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return fresh;
+      const saved = JSON.parse(raw);
+      const merged = Object.assign(fresh, saved);
+      merged.user = Object.assign({}, DEFAULT_STATE.user, saved.user || {});
+      merged.card = Object.assign({}, DEFAULT_STATE.card, saved.card || {});
+      return merged;
+    } catch(e) {
+      return fresh;
+    }
+  }
+  function saveState() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch(e) {
+      // storage full (usually from a big ID photo) — drop the photo and retry
+      try { state.idPhotoData = null; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e2) {}
+    }
+  }
+  function resetAllDemo() {
+    if(!confirm('Reset all MediPay data on this browser? The account and everything entered will be erased.')) return;
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+    location.reload();
+  }
+
+
+  // ==================== v2 HELPERS ====================
+  const IS_DESKTOP_MQ = window.matchMedia('(min-width: 900px)');
+  function isDesktop() { return IS_DESKTOP_MQ.matches; }
+  function $(id) { return document.getElementById(id); }
+
+  function nowLabel() {
+    const d = new Date();
+    return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) + ' • ' +
+           d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  }
+  function dueDateLabel(monthsAhead) {
+    const d = new Date();
+    d.setMonth(d.getMonth() + (monthsAhead || 1));
+    return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+  }
+  function calcAge(dobStr) {
+    if(!dobStr) return null;
+    const [y, m, d] = dobStr.split('-').map(Number);
+    if(!y || !m || !d) return null;
+    const dob = new Date(y, m - 1, d), t = new Date();
+    let age = t.getFullYear() - dob.getFullYear();
+    if(t.getMonth() < dob.getMonth() || (t.getMonth() === dob.getMonth() && t.getDate() < dob.getDate())) age--;
+    return age;
+  }
+  function fmtDob(s) {
+    const [y, m, d] = s.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }
+  // Accepts an email, 09XXXXXXXXX or +639XXXXXXXXX. Returns { type, value, key } or null.
+  function parseIdentifier(raw) {
+    const v = (raw || '').trim();
+    if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return { type: 'email', value: v.toLowerCase(), key: v.toLowerCase() };
+    const digits = v.replace(/[\s-]/g, '');
+    let ten = null;
+    if(/^09\d{9}$/.test(digits)) ten = digits.slice(1);
+    else if(/^\+639\d{9}$/.test(digits)) ten = digits.slice(3);
+    if(ten) return { type: 'phone', value: '+63 ' + ten.slice(0, 3) + ' ' + ten.slice(3, 6) + ' ' + ten.slice(6), key: '+63' + ten };
+    return null;
+  }
+  // Demo-grade hash so the password is not kept in plain text. Not real security.
+  function hashPass(p) {
+    let h = 5381;
+    const s = 'medipay|' + p;
+    for(let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return String(h >>> 0);
+  }
+  function randDigits(n) { let s = ''; for(let i = 0; i < n; i++) s += Math.floor(Math.random() * 10); return s; }
+  function generateCard() {
+    const d = new Date();
+    return {
+      number: '4558 ' + randDigits(4) + ' ' + randDigits(4) + ' ' + randDigits(4),
+      cvv: randDigits(3),
+      expiry: String(d.getMonth() + 1).padStart(2, '0') + '/' + String((d.getFullYear() + 4) % 100).padStart(2, '0')
+    };
+  }
+  function initials(name) {
+    const parts = (name || '').trim().split(/\s+/).filter(Boolean);
+    if(!parts.length) return '?';
+    return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+  }
+  function addrString() {
+    const u = state.user;
+    if(u.customAddress) return u.customAddress;
+    return [u.barangay, u.city, u.province].filter(Boolean).join(', ');
+  }
+
+  function registerAccount(info) {
+    if(state.account && !confirm('A demo account already exists on this browser. Replace it with this new one?')) return false;
+    if(state.account) {   // replacing an account: start the money side from zero again
+      state.walletBalance = 0; state.creditUsed = 0; state.rewardPoints = 0;
+      state.installments = []; state.transactions = [];
+      state.vouchers = JSON.parse(JSON.stringify(DEFAULT_STATE.vouchers));
+    }
+    const u = state.user;
+    u.name = info.name.replace(/\s+/g, ' ').trim();
+    u.shortName = u.name;
+    u.dob = info.dob;
+    if(info.gender) u.gender = info.gender;
+    if(info.province) u.province = info.province;
+    if(info.city) u.city = info.city;
+    if(info.barangay) u.barangay = info.barangay;
+    if(info.patientId) u.patientId = info.patientId;
+    if(info.emergency) {
+      u.emergencyContact = { ...info.emergency };
+      u.emergency = `${info.emergency.firstName} ${info.emergency.lastName} • ${info.emergency.relationship} • ${info.emergency.phone}`;
+    }
+    if(info.ident.type === 'email') { u.email = info.ident.value; } else { u.phone = info.ident.value; }
+    state.account = { key: info.ident.key, type: info.ident.type, passHash: hashPass(info.password), pinHash: null };
+    Object.assign(state.card, generateCard(), { masked: true, frozen: false, physicalLinked: false });
+    saveState();
+    return true;
+  }
+  function attemptLogin(idRaw, secret, mode) {
+    if(!state.account) return 'No account found on this browser yet. Please sign up first.';
+    const p = parseIdentifier(idRaw);
+    if(!p) return 'Enter the email or Philippine mobile number you signed up with.';
+    if(p.key !== state.account.key) return "We couldn't find an account with that email or mobile number.";
+    if(!secret) return mode === 'pin' ? 'Enter your 6-digit PIN.' : 'Enter your password.';
+    if(mode === 'pin') {
+      if(!state.account.pinHash) return 'No PIN set yet. Log in with your password, then set a PIN in Profile.';
+      if(hashPass(secret) !== state.account.pinHash) return 'Incorrect PIN.';
+    } else if(hashPass(secret) !== state.account.passHash) {
+      return 'Incorrect password.';
+    }
+    return null;
+  }
+
+
+  // ==================== DESKTOP (PC) SIGN-IN / CREATE ACCOUNT ====================
+  function pcMsg(text, ok) {
+    const el = $(pcMode === 'create' ? 'pcMsgCreate' : 'pcMsgLogin');
+    el.textContent = text || '';
+    el.classList.toggle('ok', !!ok);
+  }
+  function pcSetMode(mode) {
+    pcMode = mode;
+    $('pcCreateView').style.display = mode === 'create' ? 'block' : 'none';
+    $('pcLoginView').style.display = mode === 'login' ? 'block' : 'none';
+    $('pcMsgCreate').textContent = ''; $('pcMsgLogin').textContent = '';
+  }
+  function pcCreateAccount() {
+    const name = $('pcName').value.trim();
+    const dob = $('pcDob').value;
+    const ident = parseIdentifier($('pcIdentifier').value);
+    const pass = $('pcPass').value;
+    const age = calcAge(dob);
+    if(name.length < 2) return pcMsg('Please enter your full name.');
+    if(!dob) return pcMsg('Please enter your date of birth.');
+    if(age === null || age < 0 || age > 120) return pcMsg('That date of birth does not look right.');
+    if(age < 18) return pcMsg('You must be 18 or older to open a MediPay account.');
+    if(!ident) return pcMsg('Enter a valid email or a Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX).');
+    if(pass.length < 8) return pcMsg('Password must be at least 8 characters.');
+    if(!$('pcConsent').checked) return pcMsg('Please accept the Terms & Data Privacy consent.');
+    const ok = registerAccount({ name, dob, ident, password: pass, patientId: $('pcPatientId').value.trim() });
+    if(!ok) return;
+    ['pcName','pcDob','pcIdentifier','pcPatientId','pcPass'].forEach(i => $(i).value = '');
+    $('pcConsent').checked = false;
+    pendingOnboarding = true;
+    renderAll();
+    goScreen('onb3');
+    showToast('Account created! Next, verify your ID (you can skip).');
+  }
+  function pcLogin() {
+    const err = attemptLogin($('pcLoginId').value, $('pcLoginPass').value, 'password');
+    if(err) return pcMsg(err);
+    $('pcLoginPass').value = '';
+    pendingOnboarding = false;
+    enterMainApp('home');
+    showToast('Welcome back, ' + (state.user.shortName.split(' ')[0] || 'there') + '!');
+  }
+  function updatePin() {
+    if(!state.account) return showToast('Create an account first');
+    const cur = $('curPinVal').value, nw = $('newPinVal').value;
+    if(!/^\d{6}$/.test(nw)) return showToast('New PIN must be exactly 6 digits');
+    if(state.account.pinHash && hashPass(cur) !== state.account.pinHash) return showToast('Current PIN is incorrect');
+    state.account.pinHash = hashPass(nw);
+    saveState();
+    $('curPinVal').value = ''; $('newPinVal').value = '';
+    closeModal('modalChangePin');
+    showToast('6-Digit PIN saved. You can now log in with it.');
+  }
+
+  function php(num) {
+    return '₱' + Number(num).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('appToast');
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+  }
+  function hideToast() { document.getElementById('appToast').classList.remove('show'); }
+
+  function goScreen(id) {
+    if(id === 'pcauth') {
+      document.body.classList.add('pc-auth-mode');
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      return;
+    }
+    document.body.classList.remove('pc-auth-mode');
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    const isMain = ['home','paylater','paybill','card','transactions','profile'].includes(id);
+    document.getElementById('mainHeader').style.display = isMain ? 'flex' : 'none';
+    document.getElementById('bottomNav').style.display = isMain ? 'grid' : 'none';
+    document.getElementById('statusBar').className = id === 'splash' ? 'status-bar splash-mode' : 'status-bar';
+    document.getElementById('appBody').scrollTop = 0;
+    if(id === 'onb-income') loadIncomeFieldsFromState();
+    if(id === 'onb3') renderKycPreview();
+    updateStepPills();
+  }
+  function updateStepPills() {
+    const desk = isDesktop();
+    const kyc = document.querySelector('#screen-onb3 .step-pill');
+    const inc = document.querySelector('#screen-onb-income .step-pill');
+    if(kyc) kyc.textContent = desk ? 'Step 2 of 3' : 'Step 3 of 5';
+    if(inc) inc.textContent = desk ? 'Step 3 of 3' : 'Step 4 of 5';
+  }
+  function goBackFromKyc() {
+    if(isDesktop()) { pcSetMode('login'); goScreen('pcauth'); } else goScreen('onb2');
+  }
+  function skipIncome() {
+    if(pendingOnboarding) { pendingOnboarding = false; enterMainApp('home'); showToast('Welcome to MediPay! Add your income later in Profile to unlock credit.'); }
+    else if(state.loggedIn) switchTab('profile');
+    else goScreen('onb4');
+  }
+  function openDashboardDemo() {
+    if(!state.account) {
+      if(isDesktop()) { pcSetMode('create'); goScreen('pcauth'); pcMsg('Create an account first to open the dashboard.'); }
+      else { goScreen('onb2'); showToast('Sign up first to open the dashboard'); }
+      return;
+    }
+    enterMainApp('home');
+  }
+
+  function enterMainApp(tab = 'home') {
+    state.loggedIn = true;
+    saveState();
+    switchTab(tab);
+    renderAll();
+  }
+
+  function switchTab(tab) {
+    currentTab = tab;
+    goScreen(tab);
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === tab);
+    });
+    if(tab === 'paybill') recalcPaySummary();
+    if(tab === 'paylater') updateCalculator();
+  }
+
+  function selectSetupFor(val) {
+    state.setupFor = val;
+    document.getElementById('choiceSelf').classList.toggle('selected', val === 'Yourself');
+    document.getElementById('choiceOther').classList.toggle('selected', val === 'For someone else');
+    document.querySelector('#choiceSelf .radio-dot').textContent = val === 'Yourself' ? '✓' : '';
+    document.querySelector('#choiceOther .radio-dot').textContent = val === 'For someone else' ? '✓' : '';
+  }
+
+  let isPinMode = false;
+  function toggleLoginPinMode() {
+    isPinMode = !isPinMode;
+    $('btnSwitchPin').textContent = isPinMode ? 'Switch to Password' : 'Switch to 6 - Digit PIN';
+    $('loginSecret').placeholder = isPinMode ? 'Enter 6-Digit PIN' : 'Password';
+    $('loginSecret').maxLength = isPinMode ? 6 : 128;
+    $('loginSecret').value = '';
+  }
+  function handleLogin() {
+    const err = attemptLogin($('loginIdentifier').value, $('loginSecret').value, isPinMode ? 'pin' : 'password');
+    if(err) return showToast(err);
+    if($('login2FA').checked) showToast('2FA OTP verified (demo)');
+    $('loginSecret').value = '';
+    enterMainApp('home');
+  }
+  function forgotPassword() {
+    const raw = $('loginIdentifier').value;
+    if(!parseIdentifier(raw)) return showToast('Enter your email or mobile number first');
+    showToast('Reset link sent to ' + raw.trim() + ' (demo)');
+  }
+  function biometricSignIn(type) {
+    if(!state.account) return showToast('Sign up first, then you can use ' + type);
+    showToast(type + ' verified! Signing in...');
+    setTimeout(() => enterMainApp('home'), 450);
+  }
+  function ssoSignIn(provider) {
+    if(!state.account) return showToast('Sign up first, then you can continue with ' + provider);
+    showToast('Authenticated via ' + provider);
+    setTimeout(() => enterMainApp('home'), 450);
+  }
+
+  function syncKycPreview() { renderKycPreview(); }
+  function renderKycPreview() {
+    const u = state.user;
+    const gov = $('onbGovType').value;
+    const age = calcAge(u.dob);
+    $('kycNamePreview').textContent = u.name || (state.kycVerified ? 'ID captured' : 'No ID scanned yet');
+    $('kycDobPreview').textContent = (u.dob && age !== null)
+      ? `DOB: ${u.dob} (Age ${age} • ${age >= 18 ? 'Eligible 18+' : 'Under 18'})`
+      : (state.kycVerified ? 'Details are confirmed when you sign up' : 'Scan or upload a valid government ID');
+    $('kycIdPreview').textContent = gov || 'Select your ID type below';
+    const b = $('kycBadge');
+    if(state.kycVerified) { b.textContent = 'VERIFIED'; b.style.background = '#22C55E'; b.style.color = '#fff'; }
+    else { b.textContent = 'PENDING SCAN'; b.style.background = '#FACC15'; b.style.color = '#111827'; }
+    if(state.idPhotoData) $('kycThumbBox').innerHTML = `<img src="${state.idPhotoData}" style="width:100%;height:100%;object-fit:cover;">`;
+  }
+
+  function handleIDFileUpload(input) {
+    const file = input.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      state.idPhotoData = e.target.result;
+      state.kycVerified = true;
+      document.getElementById('idPreviewArea').innerHTML = `<img src="${e.target.result}" style="max-height:110px;border-radius:8px;margin-bottom:6px;"><div style="color:#16A34A;font-weight:800;">✓ ID Captured & Recorded!</div>`;
+      document.getElementById('kycThumbBox').innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+      markKycVerified();
+      state.vaultDocs.unshift({
+        name: file.name,
+        meta: 'Uploaded Gov ID - Today - ' + Math.round(file.size/1024) + ' KB',
+        type: 'UPLOADED_IMG',
+        dataUrl: e.target.result,
+        content: 'Uploaded Government ID for 18+ KYC verification.'
+      });
+      saveState();
+      setTimeout(() => closeModal('modalScanID'), 800);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function simulateIDScan() {
+    const box = $('idScanBox');
+    box.classList.add('scanning');
+    $('idPreviewArea').innerHTML = `<div style="font-weight:800;color:#162B75;padding:18px 0;">Scanning your ID...</div>`;
+    setTimeout(() => {
+      box.classList.remove('scanning');
+      state.kycVerified = true;
+      renderKycPreview();
+      renderAll();
+      saveState();
+      closeModal('modalScanID');
+      showToast('ID scan recorded (demo)');
+    }, 1500);
+  }
+
+  function markKycVerified() { renderKycPreview(); renderAll(); }
+
+  function saveStep3AndNext() {
+    const type = $('onbGovType').value;
+    const num = $('onbIdNum').value.trim();
+    if(num && !type) return showToast('Select your ID type first');
+    state.user.govIdType = type;
+    state.user.idNumber = num;
+    state.user.insuranceStatus = $('onbInsStatus').value;
+    saveState();
+    goScreen('onb-income');
+  }
+
+  // ==================== NEW STEP 4: EMPLOYMENT & INCOME LOGIC ====================
+  function loadIncomeFieldsFromState() {
+    const u = state.user;
+    $('incEmpStatus').value = u.employmentStatus || '';
+    $('incEmployerName').value = u.employerName || '';
+    $('incMonthlyAmt').value = (u.monthlyIncome === null || u.monthlyIncome === undefined) ? '' : u.monthlyIncome;
+    $('incTenure').value = u.tenure || '';
+    $('incPayFreq').value = u.payFrequency || '';
+    $('incDependents').value = u.dependents || '';
+    $('incExistingDebt').value = u.existingDebt ? u.existingDebt : '';
+    $('incPurpose').value = u.primaryPurpose || '';
+    document.querySelectorAll('.income-chip').forEach(c => c.classList.remove('active'));
+    onEmpStatusChange();
+  }
+
+  function onEmpStatusChange() {
+    const emp = document.getElementById('incEmpStatus').value;
+    const lbl = document.getElementById('incEmployerLabel');
+    if(emp.includes('Business')) lbl.textContent = 'Registered Business / Store Name';
+    else if(emp.includes('Self-Employed')) lbl.textContent = 'Profession / Freelance Field';
+    else if(emp.includes('Student')) lbl.textContent = 'School & Family Sponsor Name';
+    else if(emp.includes('Retired')) lbl.textContent = 'Pension / Retirement Fund Source';
+    else if(emp.includes('Unemployed')) lbl.textContent = 'Household Support / Savings Source';
+    else lbl.textContent = 'Employer / Company Name';
+    recalcPreQual();
+  }
+
+  function setIncomePreset(val, btn) {
+    document.querySelectorAll('.income-chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('incMonthlyAmt').value = val;
+    recalcPreQual();
+  }
+
+  function recalcPreQual() {
+    const emp = $('incEmpStatus').value;
+    const incRaw = $('incMonthlyAmt').value;
+    const badge = $('preQualBadge');
+    if(!emp || incRaw === '') {
+      estimatedCreditLimit = 0;
+      $('preQualLimitDisplay').textContent = php(0);
+      $('preQualSubDisplay').textContent = 'Choose your employment status and enter your income to see your estimate';
+      badge.textContent = 'PENDING'; badge.style.background = '#9CA3AF';
+      return;
+    }
+    const inc = Math.max(0, parseFloat(incRaw) || 0);
+    const debt = Math.max(0, parseFloat($('incExistingDebt').value) || 0);
+    const netInc = Math.max(0, inc - debt);
+
+    let limit;
+    if(emp.includes('Unemployed')) limit = 10000;
+    else if(netInc >= 60000) limit = 75000;
+    else if(netInc >= 30000) limit = 50000;
+    else if(netInc >= 15000) limit = 30000;
+    else limit = 15000;
+
+    estimatedCreditLimit = Math.max(limit, state.creditUsed);
+    $('preQualLimitDisplay').textContent = php(estimatedCreditLimit);
+    $('preQualSubDisplay').textContent = `${emp.split(' (')[0]} • ${php(inc)}/mo • 0% 1st-Mo Promo Eligible`;
+    if(emp.includes('Unemployed') && inc < 5000) { badge.textContent = 'STARTER TIER'; badge.style.background = '#F59E0B'; }
+    else { badge.textContent = 'PRE-APPROVED'; badge.style.background = '#22C55E'; }
+  }
+
+  function saveIncomeStepAndNext() {
+    const emp = $('incEmpStatus').value;
+    const incRaw = $('incMonthlyAmt').value;
+    if(!emp) return showToast('Please choose your employment status');
+    if(incRaw === '' || isNaN(parseFloat(incRaw)) || parseFloat(incRaw) < 0) return showToast('Please enter your monthly income');
+    if(!$('incCertify').checked) return showToast('Please certify your employment & income information');
+
+    const u = state.user;
+    u.employmentStatus = emp;
+    u.employerName = $('incEmployerName').value.trim();
+    u.monthlyIncome = Math.max(0, parseFloat(incRaw) || 0);
+    u.tenure = $('incTenure').value;
+    u.payFrequency = $('incPayFreq').value;
+    u.dependents = $('incDependents').value;
+    u.existingDebt = Math.max(0, parseFloat($('incExistingDebt').value) || 0);
+    u.primaryPurpose = $('incPurpose').value;
+
+    recalcPreQual();
+    state.creditLimit = estimatedCreditLimit;
+    saveState();
+    renderAll();
+
+    if(pendingOnboarding) {
+      pendingOnboarding = false;
+      enterMainApp('home');
+      showToast(`You're all set! Credit limit: ${php(state.creditLimit)}`);
+    } else if(state.loggedIn) {
+      switchTab('profile');
+      showToast(`Income updated! Credit Limit set to ${php(state.creditLimit)}`);
+    } else {
+      goScreen('onb4');
+      showToast(`Pre-qualified for ${php(state.creditLimit)} credit limit!`);
+    }
+  }
+
+  function updateAgeBadge() {
+    const el = $('regAgeBanner');
+    const age = calcAge($('regDob').value);
+    if(age === null) { el.style.display = 'none'; el.innerHTML = ''; return; }
+    el.style.display = 'flex';
+    if(age >= 18) {
+      el.innerHTML = `<span style="background:#162B75;color:#fff;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;">✓</span><span>Verified! Applicant is ${age} years old (18+ eligible)</span>`;
+      el.style.color = '#162B75';
+    } else {
+      el.innerHTML = `<span>⚠️ Applicant is ${age} years old (Must be 18+ for credit)</span>`;
+      el.style.color = '#DC2626';
+    }
+  }
+
+  function toggleRegIns(hasIns) {
+    state.user.withInsurance = hasIns;
+    $('btnWithIns').style.background = hasIns ? '#DBEAFE' : '#F3F4F6';
+    $('btnWithIns').style.borderColor = hasIns ? '#2364D2' : '#D1D5DB';
+    $('btnWithoutIns').style.background = !hasIns ? '#DBEAFE' : '#F3F4F6';
+    $('btnWithoutIns').style.borderColor = !hasIns ? '#2364D2' : '#D1D5DB';
+  }
+
+  function completeSignUp() {
+    const name = $('regName').value.trim();
+    const dob = $('regDob').value;
+    const age = calcAge(dob);
+    const ident = parseIdentifier($('regEmail').value);
+    const p1 = $('regPass1').value, p2 = $('regPass2').value;
+    const emergencyFirst = $('regEmergencyFirst').value.trim();
+    const emergencyLast = $('regEmergencyLast').value.trim();
+    const emergencyRelationship = $('regEmergencyRelationship').value.trim();
+    const emergencyPhone = $('regEmergencyPhone').value.trim();
+    const emergencyDigits = emergencyPhone.replace(/\D/g, '');
+    if(name.length < 2) return showToast('Please enter your name');
+    if(!dob) return showToast('Please select your birthday');
+    if(age === null || age < 18) return showToast('You must be 18 or older to sign up');
+    if(!$('regGender').value) return showToast('Please select your gender');
+    if(!$('regProv').value || !$('regCity').value || !$('regBrgy').value) return showToast('Please select your province, city and barangay');
+    if(!ident) return showToast('Enter a valid email or PH mobile number (09XXXXXXXXX)');
+    if(p1.length < 8) return showToast('Password must be at least 8 characters');
+    if(p1 !== p2) return showToast('Passwords do not match');
+    if(emergencyFirst.length < 2 || emergencyLast.length < 2) return showToast('Please enter the emergency contact first and last name');
+    if(!emergencyRelationship) return showToast('Please enter the emergency contact relationship');
+    if(emergencyDigits.length < 7 || emergencyDigits.length > 15) return showToast('Please enter a valid emergency contact phone number');
+    if(!$('regConsent').checked) return showToast('Please accept Terms & Data Privacy Consent');
+    const emergency = {
+      firstName: emergencyFirst,
+      lastName: emergencyLast,
+      relationship: emergencyRelationship,
+      phone: emergencyPhone
+    };
+    const ok = registerAccount({
+      name, dob, ident, password: p1, gender: $('regGender').value,
+      province: $('regProv').value, city: $('regCity').value, barangay: $('regBrgy').value,
+      emergency
+    });
+    if(!ok) return;
+    ['regName','regEmail','regPass1','regPass2','regEmergencyFirst','regEmergencyLast',
+      'regEmergencyRelationship','regEmergencyPhone'].forEach(i => $(i).value = '');
+    $('regConsent').checked = false;
+    showToast('Account created! Welcome to MediPay');
+    enterMainApp('home');
+  }
+
+  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  function confirmTopUp() {
+    const amt = parseFloat(document.getElementById('topupAmtInput').value);
+    const src = document.getElementById('topupSource').value;
+    if(!amt || amt <= 0) return showToast('Enter a valid top-up amount');
+    state.walletBalance += amt;
+    state.transactions.unshift({
+      id: 'TX-' + Math.floor(1000 + Math.random()*9000),
+      category: 'WALLET TOP UP',
+      provider: src,
+      date: nowLabel(),
+      amount: amt,
+      status: 'Completed',
+      method: 'Bank / E-Wallet Transfer',
+      pts: '+5 pts',
+      ref: 'TOP-' + Date.now().toString().slice(-6)
+    });
+    state.rewardPoints += 5;
+    $('topupAmtInput').value = '';
+    saveState();
+    renderAll();
+    closeModal('modalTopUp');
+    showToast(`Added ${php(amt)} to MediPay Wallet!`);
+  }
+
+  function setCalcTerm(m, btn) {
+    calcMonths = m;
+    document.querySelectorAll('.term-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updateCalculator();
+  }
+
+  function updateCalculator() {
+    const amt = parseFloat(document.getElementById('calcSlider').value);
+    document.getElementById('calcAmtDisplay').textContent = php(amt);
+    let subRateText = '0.00% (1-Month Promo)';
+    let monthly = amt;
+    if(calcMonths > 1) {
+      const rate = 0.015;
+      subRateText = '1.50% / mo (after 1st mo)';
+      const interestMonths = calcMonths - 1;
+      const total = amt + (amt * rate * interestMonths);
+      monthly = total / calcMonths;
+    }
+    document.getElementById('calcSubRate').textContent = subRateText;
+    document.getElementById('calcMonthlyDue').textContent = php(monthly) + '/ month';
+  }
+
+  function payActiveInstallment() {
+    const inst = state.installments[0];
+    if(!inst || inst.remaining <= 0) return showToast('No active installment balance due!');
+    const due = Math.min(inst.nextDueAmount, inst.remaining);
+    if(state.walletBalance < due) return showToast('Insufficient Wallet Balance. Please Top Up!');
+
+    state.walletBalance -= due;
+    inst.paid += due;
+    inst.remaining = Math.max(0, inst.remaining - due);
+    inst.paidMonths = Math.min(inst.totalMonths, inst.paidMonths + 1);
+    state.creditUsed = Math.max(0, state.creditUsed - due);
+    state.rewardPoints += 35;
+
+    state.transactions.unshift({
+      id: 'TX-' + Math.floor(1000 + Math.random()*9000),
+      category: 'INSTALLMENT PAYMENT',
+      provider: inst.provider,
+      date: nowLabel(),
+      amount: due,
+      status: 'Completed',
+      method: 'MediPay Wallet',
+      pts: '+35 pts',
+      ref: 'INST-' + Date.now().toString().slice(-5)
+    });
+
+    saveState();
+    renderAll();
+    showToast(`Paid ${php(due)} installment! Credit restored.`);
+  }
+
+  function executeDrawCredit() {
+    const purpose = document.getElementById('drawPurpose').value.trim() || 'Emergency Medical Credit';
+    const amt = parseFloat(document.getElementById('drawAmount').value);
+    const months = parseInt(document.getElementById('drawMonths').value);
+    const avail = state.creditLimit - state.creditUsed;
+    if(!amt || amt <= 0) return showToast('Enter valid amount');
+    if(amt > avail) return showToast('Exceeds available credit limit of ' + php(avail));
+
+    state.creditUsed += amt;
+    state.walletBalance += amt;
+    state.installments.unshift({
+      id: 'inst_' + Date.now(),
+      category: 'EMERGENCY CREDIT',
+      provider: purpose,
+      paidMonths: 0,
+      totalMonths: months,
+      borrowed: amt,
+      paid: 0,
+      remaining: amt,
+      nextDueDate: dueDateLabel(1),
+      nextDueAmount: +(amt / months).toFixed(2)
+    });
+    $('drawPurpose').value = ''; $('drawAmount').value = '';
+    saveState();
+    renderAll();
+    closeModal('modalDrawCredit');
+    showToast(`Disbursed ${php(amt)} to Wallet via 0% 1st-Mo Promo!`);
+  }
+
+  function openPayBillCategory(cat) {
+    switchTab('paybill');
+    document.querySelectorAll('.cat-pill').forEach(p => {
+      p.classList.toggle('active', p.textContent.includes(cat));
+    });
+    selectedPayCat = cat;
+  }
+
+  function selectPayCat(cat, btn) {
+    selectedPayCat = cat;
+    document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function selectPayChannel(ch, btn) {
+    selectedPayChannel = ch;
+    document.querySelectorAll('.channel-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function recalcPaySummary() {
+    const amt = Math.max(0, parseFloat(document.getElementById('payAmount').value) || 0);
+    const vId = document.getElementById('payVoucherSelect').value;
+    const v = state.vouchers.find(x => x.id === vId);
+    const disc = v ? Math.min(amt, v.amount) : 0;
+    const total = Math.max(0, amt - disc);
+    const pts = Math.round(amt * 0.01);
+
+    document.getElementById('pbSubtotal').textContent = php(amt);
+    document.getElementById('pbDiscount').textContent = '-' + php(disc);
+    document.getElementById('pbPtsEarned').textContent = '+' + pts + ' pts';
+    document.getElementById('pbTotal').textContent = php(total);
+  }
+
+  function executePayBill() {
+    const amt = parseFloat(document.getElementById('payAmount').value) || 0;
+    if(amt <= 0) return showToast('Enter a valid amount due');
+    const vId = document.getElementById('payVoucherSelect').value;
+    const vIdx = state.vouchers.findIndex(x => x.id === vId);
+    const disc = vIdx >= 0 ? Math.min(amt, state.vouchers[vIdx].amount) : 0;
+    const total = Math.max(0, amt - disc);
+    const provider = document.getElementById('payProvider').value;
+    const ref = document.getElementById('payRefNo').value || 'SOA-' + Date.now().toString().slice(-5);
+
+    if(selectedPayChannel === 'MediPay Wallet' || selectedPayChannel === 'MediPay Card') {
+      if(state.card.frozen && selectedPayChannel === 'MediPay Card') return showToast('MediPay Card is frozen! Unfreeze in Card Hub.');
+      if(state.walletBalance < total) return showToast('Insufficient Wallet Balance. Top Up or use MediPayLater!');
+      state.walletBalance -= total;
+    } else if(selectedPayChannel === 'MediPayLater') {
+      const avail = state.creditLimit - state.creditUsed;
+      if(total > avail) return showToast('Exceeds MediPayLater credit limit');
+      state.creditUsed += total;
+      state.installments.unshift({
+        id: 'inst_' + Date.now(),
+        category: selectedPayCat.toUpperCase(),
+        provider: provider,
+        paidMonths: 0,
+        totalMonths: 3,
+        borrowed: total,
+        paid: 0,
+        remaining: total,
+        nextDueDate: dueDateLabel(1),
+        nextDueAmount: +(total / 3).toFixed(2)
+      });
+    }
+
+    if(vIdx >= 0) state.vouchers.splice(vIdx, 1);
+    const pts = Math.round(amt * 0.01);
+    state.rewardPoints += pts;
+
+    const status = selectedPayChannel === 'OTC Payment Center' ? 'Pending' : 'Completed';
+    state.transactions.unshift({
+      id: 'TX-' + Math.floor(1000 + Math.random()*9000),
+      category: selectedPayCat.toUpperCase(),
+      provider: provider,
+      date: nowLabel(),
+      amount: total,
+      status: status,
+      method: selectedPayChannel,
+      pts: '+' + pts + ' pts',
+      ref: ref
+    });
+
+    $('payAmount').value = ''; $('payRefNo').value = '';
+    saveState();
+    renderAll();
+    switchTab('transactions');
+    showToast(`Payment of ${php(total)} ${status === 'Pending' ? 'queued (OTC)' : 'completed'}!`);
+  }
+
+  const REWARD_ITEMS = [
+    { id: 'r1', title: '₱200 Prescription Medicine Voucher', sub: 'Mercury Drug & Accredited Pharmacies', cost: 200, amount: 200 },
+    { id: 'r2', title: '₱350 Diagnostic & Lab Discount', sub: 'Hi-Precision & Hospital Labs', cost: 300, amount: 350 },
+    { id: 'r3', title: 'Free Telemedicine Consultation (₱500)', sub: 'MediPay Telehealth Lab', cost: 400, amount: 500 }
+  ];
+
+  function openRewardsModal() { renderRewardsModal(); openModal('modalRewards'); }
+
+  function renderRewardsModal() {
+    document.getElementById('modalPtsDisplay').textContent = state.rewardPoints + ' pts';
+    document.getElementById('rewardsCatalog').innerHTML = REWARD_ITEMS.map(item => `
+      <div style="border:1px solid #E5E7EB;border-radius:12px;padding:10px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div>
+          <div style="font-size:11.5px;font-weight:800;color:#111827;">${item.title}</div>
+          <div style="font-size:9.5px;color:#6B7280;">${item.sub}</div>
+          <div style="font-size:10px;font-weight:800;color:#D97706;margin-top:2px;">${item.cost} pts required</div>
+        </div>
+        <button class="btn-primary" style="padding:6px 12px;font-size:11px;border-radius:14px;" onclick="redeemReward('${item.id}')">Redeem</button>
+      </div>
+    `).join('');
+
+    document.getElementById('activeVouchersCount').textContent = state.vouchers.length;
+    document.getElementById('myActiveVouchersList').innerHTML = state.vouchers.length ? state.vouchers.map(v => `
+      <div style="background:#BFDBFE;border-radius:12px;padding:10px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div>
+          <div style="font-size:11.5px;font-weight:800;color:#111827;">${v.title}</div>
+          <div style="font-size:10px;color:#1E3A8A;">Code: ${v.code}</div>
+        </div>
+        <button class="btn-primary" style="padding:6px 10px;font-size:10.5px;border-radius:14px;" onclick="useVoucherInPayBill('${v.id}')">Use at Pay Bill</button>
+      </div>
+    `).join('') : '<div style="font-size:11px;color:#6B7280;">No active vouchers yet.</div>';
+  }
+
+  function redeemReward(id) {
+    const item = REWARD_ITEMS.find(x => x.id === id);
+    if(state.rewardPoints < item.cost) return showToast('Not enough Health Reward Points!');
+    state.rewardPoints -= item.cost;
+    state.vouchers.push({ id: 'v_' + Date.now(), title: item.title, code: 'MEDI' + item.amount, amount: item.amount });
+    saveState(); renderAll(); renderRewardsModal();
+    showToast('Redeemed: ' + item.title);
+  }
+
+  function useVoucherInPayBill(vId) {
+    closeModal('modalRewards');
+    switchTab('paybill');
+    document.getElementById('payVoucherSelect').value = vId;
+    recalcPaySummary();
+    showToast('Voucher applied to Pay Bill!');
+  }
+
+  const PROVIDERS_DATA = [
+    { type: 'HOSPITAL', name: 'Perpetual Help Medical Center - Biñan', loc: 'National Highway, Biñan, Laguna', tags: ['MediPayLater','MediPay Card','QRPH'] },
+    { type: 'PHARMACY', name: 'Mercury Drug - Biñan Poblacion', loc: 'A. Mabini St., Biñan, Laguna', tags: ['MediPayLater','MediPay Card','QRPH'] },
+    { type: 'TELEMEDICINE PROVIDER', name: 'KonsultaMD / MediPay Telehealth Hub', loc: 'Nationwide 24/7 Online Consult', tags: ['Wallet','MediPay Card','MediPayLater'] },
+    { type: 'DIAGNOSTIC CENTER', name: 'Hi-Precision Diagnostics - Sta. Rosa', loc: 'Balibago Complex, Sta. Rosa, Laguna', tags: ['Wallet','MediPay Card','MediPayLater'] }
+  ];
+  function renderProvidersList() {
+    const q = (document.getElementById('providerSearch').value || '').toLowerCase();
+    const list = PROVIDERS_DATA.filter(p => p.name.toLowerCase().includes(q) || p.loc.toLowerCase().includes(q) || p.type.toLowerCase().includes(q));
+    document.getElementById('providersListContainer').innerHTML = list.map(p => `
+      <div style="border:1px solid #E5E7EB;border-radius:14px;padding:10px;margin-bottom:8px;">
+        <span style="background:#DBEAFE;color:#1E40AF;font-size:9px;font-weight:800;padding:2px 7px;border-radius:6px;">${p.type}</span>
+        <div style="font-size:12.5px;font-weight:800;margin-top:5px;">${p.name}</div>
+        <div style="font-size:10px;color:#4B5563;margin:2px 0 8px;">📍 ${p.loc}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;">
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            ${p.tags.map(t => `<span style="background:#E5E7EB;font-size:9px;font-weight:700;padding:3px 6px;border-radius:6px;">${t}</span>`).join('')}
+          </div>
+          <button class="btn-primary" style="padding:5px 10px;font-size:10px;" onclick="paySpecificFacility('${p.name}')">Pay Facility</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  function paySpecificFacility(name) {
+    closeModal('modalProviders');
+    switchTab('paybill');
+    const sel = document.getElementById('payProvider');
+    for(let i=0;i<sel.options.length;i++){
+      if(sel.options[i].text.includes(name.split(' - ')[0])) { sel.selectedIndex = i; break; }
+    }
+    showToast('Selected: ' + name);
+  }
+
+  function openDocVault() { renderVaultList(); openModal('modalDocVault'); }
+  function renderVaultList() {
+    $('vaultFilesList').innerHTML = state.vaultDocs.length ? state.vaultDocs.map((d, idx) => `
+      <div style="border:1px solid #E5E7EB;border-radius:12px;padding:9px 10px;display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div style="background:#DC2626;color:#fff;font-size:9px;font-weight:900;padding:8px 6px;border-radius:6px;">PDF</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.name}</div>
+          <div style="font-size:9.5px;color:#6B7280;">${d.meta}</div>
+        </div>
+        <button class="btn-primary" style="padding:5px 12px;font-size:10.5px;" onclick="previewVaultDoc(${idx})">View</button>
+      </div>
+    `).join('') : '<div style="text-align:center;color:#6B7280;padding:18px 6px;font-size:11.5px;">No documents yet. Upload a medical bill, prescription or insurance file above.</div>';
+  }
+  function handleVaultUpload(input) {
+    const f = input.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      state.vaultDocs.unshift({
+        name: f.name,
+        meta: 'Uploaded Record - Today - ' + Math.max(1, Math.round(f.size/1024)) + ' KB',
+        type: f.type.includes('image') ? 'UPLOADED_IMG' : 'PDF',
+        dataUrl: e.target.result,
+        content: 'Encrypted patient medical file uploaded on ' + new Date().toLocaleDateString()
+      });
+      saveState(); renderVaultList();
+      showToast('File encrypted & saved to Doc Vault!');
+    };
+    reader.readAsDataURL(f);
+  }
+  function previewVaultDoc(idx) {
+    const d = state.vaultDocs[idx];
+    document.getElementById('docPreviewTitle').textContent = d.name;
+    let body = `<div style="background:#F1F5F9;padding:12px;border-radius:10px;line-height:1.5;"><b>Metadata:</b> ${d.meta}<br><br>${d.content}</div>`;
+    if(d.dataUrl && d.type === 'UPLOADED_IMG') body = `<img src="${d.dataUrl}" style="width:100%;border-radius:10px;margin-bottom:8px;">` + body;
+    document.getElementById('docPreviewBody').innerHTML = body;
+    openModal('modalDocPreview');
+  }
+
+  function simulateScanQRPH() {
+    closeModal('modalQRPH');
+    switchTab('paybill');
+    document.getElementById('payAmount').value = 1250;
+    document.querySelectorAll('.channel-btn').forEach(b => b.classList.toggle('active', b.textContent.includes('QRPH')));
+    selectedPayChannel = 'QRPH Scan/Pay';
+    recalcPaySummary();
+    showToast('QRPH Scanned: Perpetual Help Medical Center (₱1,250.00)');
+  }
+
+  function sendSupportMsg() {
+    const inp = document.getElementById('supportInput');
+    const txt = inp.value.trim();
+    if(!txt) return;
+    const log = document.getElementById('supportChatLog');
+    log.innerHTML += `<div style="background:#162B75;color:#fff;padding:7px 9px;border-radius:8px;margin-bottom:6px;text-align:right;">${txt}</div>`;
+    inp.value = '';
+    setTimeout(() => {
+      log.innerHTML += `<div style="background:#EFF6FF;padding:8px;border-radius:8px;margin-bottom:6px;"><b style="color:#162B75;">MediPay Agent Ana:</b> Thank you! I've checked your verified MediPay account. Your 0% 1st-Month Promo and ${php(state.creditLimit - state.creditUsed)} credit line are active. Anything else I can help with?</div>`;
+      log.scrollTop = log.scrollHeight;
+    }, 500);
+  }
+  function toggleFaq() {
+    const f = document.getElementById('faqAns');
+    f.style.display = f.style.display === 'none' ? 'block' : 'none';
+  }
+  function fileDisputeDemo() { showToast('Dispute Ticket #MP-48102 opened. Support will email you shortly.'); }
+
+  function setCardType(mode) {
+    state.card.mode = mode;
+    document.getElementById('btnVirtualTab').classList.toggle('active', mode === 'VIRTUAL');
+    document.getElementById('btnPhysicalTab').classList.toggle('active', mode === 'PHYSICAL');
+    document.getElementById('cardModeBadge').textContent = mode;
+    saveState();
+  }
+  function flipCard() { document.getElementById('cardFlipInner').classList.toggle('flipped'); }
+  function toggleMaskCard() { state.card.masked = !state.card.masked; renderCardDisplay(); }
+  function renderCardDisplay() {
+    const c = state.card;
+    const num = c.number || '';
+    $('cardNumberDisplay').textContent = !num ? '•••• •••• •••• ••••' : (c.masked ? num.slice(0,4) + ' **** ***** ' + num.slice(-4) : num);
+    $('cardFrontFace').classList.toggle('frozen', c.frozen);
+    $('freezeCardToggle').checked = c.frozen;
+    $('cardStatusBadge').textContent = c.frozen ? 'Card Frozen' : (num ? 'Active and Linked' : 'No card yet');
+    $('cardStatusBadge').style.background = c.frozen ? '#DC2626' : '#162B75';
+    $('cardPowerAmt').textContent = '₱ ' + (state.walletBalance + Math.max(0, state.creditLimit - state.creditUsed)).toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2});
+    $('cardSpendLimitTxt').textContent = php(c.spendLimit);
+    $('cardSpendSlider').max = Math.max(50000, state.creditLimit);
+    $('cardSpendSlider').value = c.spendLimit;
+    $('cardHolderName').textContent = (state.user.shortName || 'YOUR NAME').toUpperCase();
+    $('cardExpiry').textContent = c.expiry || '--/--';
+    $('cardCvvFront').textContent = c.cvv || '•••';
+    $('cardCvvBack').textContent = 'CVV: ' + (c.cvv || '•••');
+  }
+  function updateCardSpendLimit(val) {
+    state.card.spendLimit = Number(val);
+    document.getElementById('cardSpendLimitTxt').textContent = php(val);
+    saveState();
+  }
+  function toggleFreezeCard(isFrozen) {
+    state.card.frozen = isFrozen;
+    saveState(); renderCardDisplay();
+    showToast(isFrozen ? 'MediPay Card Frozen' : 'MediPay Card Active');
+  }
+  function activatePhysicalCard() {
+    const n = $('linkCardNum').value.replace(/\D/g, '');
+    const code = $('linkCardCode').value.trim();
+    if(n.length !== 16) return showToast('Enter the 16-digit card number');
+    if(!/^\d{3}$/.test(code)) return showToast('Enter the 3-digit activation code');
+    state.card.number = n.replace(/(.{4})/g, '$1 ').trim();
+    state.card.physicalLinked = true;
+    $('linkCardNum').value = ''; $('linkCardCode').value = '';
+    setCardType('PHYSICAL'); saveState(); renderCardDisplay();
+    closeModal('modalLinkCard');
+    showToast('Physical MediPay Card linked & activated!');
+  }
+  function confirmReportLostCard() {
+    if(!$('lossReason').value.trim()) return showToast('Please tell us the reason for replacement');
+    Object.assign(state.card, generateCard(), { frozen: false });
+    $('lossReason').value = '';
+    saveState(); renderCardDisplay();
+    closeModal('modalReportCard');
+    showToast('Old card blocked! Replacement Virtual Card ending ' + state.card.number.slice(-4) + ' issued.');
+  }
+
+  function setTxFilter(f, btn) {
+    currentTxFilter = f;
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    renderTransactionsList();
+  }
+  function renderTransactionsList() {
+    const list = currentTxFilter === 'All' ? state.transactions : state.transactions.filter(t => t.status === currentTxFilter);
+    document.getElementById('txHistoryList').innerHTML = list.map(tx => `
+      <div class="white-card" style="padding:11px 12px;margin-bottom:9px;cursor:pointer;" onclick="openReceipt('${tx.id}')">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:10px;font-weight:800;color:#162B75;">${tx.category}</div>
+            <div style="font-size:12.5px;font-weight:800;color:#111827;margin:2px 0;">${tx.provider}</div>
+            <div style="font-size:10px;color:#6B7280;">${tx.date}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:13px;font-weight:800;">${php(tx.amount)}</div>
+            <span class="status-pill status-${tx.status.toLowerCase()}">${tx.status}</span>
+          </div>
+        </div>
+        <div style="border-top:1px solid #F3F4F6;margin-top:8px;padding-top:6px;display:flex;justify-content:space-between;font-size:10.5px;">
+          <span>Method: <b>${tx.method}</b></span>
+          <span style="color:${tx.pts ? '#D97706' : '#6B7280'};font-weight:800;">${tx.pts || 'Ref: ' + tx.ref}</span>
+        </div>
+      </div>
+    `).join('') || '<div style="text-align:center;color:#6B7280;padding:30px;font-size:12px;">No transactions in this filter.</div>';
+  }
+  function openReceipt(id) {
+    const tx = state.transactions.find(x => x.id === id);
+    if(!tx) return;
+    document.getElementById('receiptBody').innerHTML = `
+      <div style="text-align:center;margin-bottom:10px;">
+        <b style="color:#162B75;font-size:15px;">MEDIPAY OFFICIAL RECEIPT</b><br>
+        <span style="font-size:10px;color:#6B7280;">Reference: ${tx.ref} • ID: ${tx.id}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Patient</span><b>${state.user.shortName}</b></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Category</span><b>${tx.category}</b></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Facility</span><b>${tx.provider}</b></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Date</span><b>${tx.date}</b></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Payment Method</span><b>${tx.method}</b></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Status</span><b>${tx.status}</b></div>
+      <hr style="border:none;border-top:1px dashed #CBD5E1;margin:8px 0;">
+      <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:800;color:#162B75;"><span>TOTAL</span><span>${php(tx.amount)}</span></div>
+    `;
+    openModal('modalReceipt');
+  }
+  function exportTransactionsCSV() {
+    let csv = 'ID,Category,Provider,Date,Amount,Status,Method,Reference\n';
+    state.transactions.forEach(t => {
+      csv += `"${t.id}","${t.category}","${t.provider}","${t.date}",${t.amount},"${t.status}","${t.method}","${t.ref}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'MediPay_Transactions.csv';
+    a.click();
+    showToast('Exported MediPay_Transactions.csv');
+  }
+
+  function saveProfileEdits() {
+    const name = $('editProfName').value.trim();
+    const phoneRaw = $('editProfPhone').value.trim();
+    const emailRaw = $('editProfEmail').value.trim();
+    if(phoneRaw) {
+      const p = parseIdentifier(phoneRaw);
+      if(!p || p.type !== 'phone') return showToast('Enter a valid PH mobile number (09XXXXXXXXX)');
+      state.user.phone = p.value;
+    }
+    if(emailRaw) {
+      const e = parseIdentifier(emailRaw);
+      if(!e || e.type !== 'email') return showToast('Enter a valid email address');
+      state.user.email = e.value;
+    }
+    if(name) { state.user.shortName = name; state.user.name = name; }
+    const addr = $('editProfAddr').value.trim();
+    if(addr) state.user.customAddress = addr;
+    state.user.emergency = $('editProfEmerg').value.trim();
+    saveState(); renderAll(); closeModal('modalEditProfile');
+    showToast('Patient Demographics updated!');
+  }
+  function addLinkedAccount() {
+    const b = $('newBankName').value;
+    const digits = $('newBankAcct').value.replace(/\D/g, '');
+    if(digits.length < 4) return showToast('Enter your account or mobile number');
+    const sub = '•••• ' + digits.slice(-4) + ' • Verified';
+    state.linkedAccounts.push({ code: b, bg: '#162B75', name: b, sub });
+    $('newBankAcct').value = '';
+    saveState(); renderAll(); closeModal('modalLinkBank');
+    showToast(b + ' account linked!');
+  }
+  function secureLogout() {
+    state.loggedIn = false; saveState();
+    if(isDesktop()) { pcSetMode('login'); goScreen('pcauth'); pcMsg('You have been logged out securely.', true); }
+    else { goScreen('onb2'); showToast('Securely logged out'); }
+  }
+
+  function renderNotifs() {
+    const items = [];
+    const inst = state.installments[0];
+    if(inst && inst.remaining > 0) items.push({ bg: '#EFF6FF', title: 'Installment Reminder', body: `${inst.provider.split(' - ')[0]} due ${inst.nextDueDate} (${php(Math.min(inst.nextDueAmount, inst.remaining))}).` });
+    if(state.vouchers.some(v => v.code === 'WELCOME150')) items.push({ bg: '#FEF3C7', title: 'New Health Voucher', body: 'Use WELCOME150 for ₱150 off your next healthcare bill.' });
+    items.push(state.kycVerified
+      ? { bg: '#ECFDF5', title: 'KYC Verified', body: 'Your ID has been recorded and your 18+ eligibility is active.' }
+      : { bg: '#FFFBEB', title: 'Verify your ID', body: 'Scan or upload a government ID in Profile to complete KYC.' });
+    $('notifList').innerHTML = items.map(n => `<div style="background:${n.bg};padding:10px;border-radius:10px;"><b>${n.title}</b><br><span style="color:#4B5563;">${n.body}</span></div>`).join('');
+    $('notifTitle').textContent = `Notifications (${items.length})`;
+    $('notifCount').textContent = items.length;
+  }
+
+  function renderAll() {
+    const u = state.user;
+    const availCred = Math.max(0, state.creditLimit - state.creditUsed);
+    $('hdrGreeting').textContent = 'Hello, ' + (u.shortName || 'there');
+    $('hdrPointsBadge').textContent = state.rewardPoints;
+    const vb = $('hdrVerified');
+    vb.textContent = state.kycVerified ? 'VERIFIED' : 'UNVERIFIED';
+    vb.classList.toggle('unverified', !state.kycVerified);
+
+    // Home
+    $('homeWalletBal').textContent = php(state.walletBalance);
+    $('homeAvailCredit').textContent = php(availCred);
+    $('homeCreditLimitSub').textContent = state.creditLimit > 0 ? 'of ' + php(state.creditLimit) + ' limit' : 'Add your income to unlock';
+    $('homeRewardPts').textContent = state.rewardPoints + ' pts';
+    $('pbWalletSub').textContent = 'Instant • Balance ' + php(state.walletBalance);
+
+    const inst = state.installments[0];
+    if(inst && inst.remaining > 0) {
+      $('homeDueBanner').style.display = 'flex';
+      $('homeDueDesc').innerHTML = `${inst.provider.split(' - ')[0]} • <b>${php(Math.min(inst.nextDueAmount, inst.remaining))}</b>`;
+      $('homeDueDate').textContent = inst.nextDueDate;
+    } else {
+      $('homeDueBanner').style.display = 'none';
+    }
+
+    $('homeRecentTx').innerHTML = state.transactions.slice(0,3).map(tx => `
+      <div class="tx-card" onclick="openReceipt('${tx.id}')">
+        <div class="tx-icon">📄</div>
+        <div style="flex:1;min-width:0;">
+          <div class="tx-title">${tx.provider}</div>
+          <div class="tx-sub">${tx.category.toLowerCase()} • ${tx.method}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="tx-amt">-${php(tx.amount)}</div>
+          <span class="status-pill status-${tx.status.toLowerCase()}">${tx.status}</span>
+        </div>
+      </div>
+    `).join('') || '<div style="text-align:center;color:#6B7280;padding:18px 8px;font-size:12px;">No transactions yet. Top up your wallet or pay a bill to get started.</div>';
+
+    // Pay Later
+    $('plAvailLimit').textContent = php(availCred);
+    $('plUsedLabel').textContent = 'Used: ' + php(state.creditUsed);
+    $('plTotalLimitLabel').textContent = 'Total Limit: ' + php(state.creditLimit);
+    $('plProgressFill').style.width = (state.creditLimit > 0 ? Math.min(100, (state.creditUsed / state.creditLimit) * 100) : 0) + '%';
+    $('activeInstallmentsList').innerHTML = state.installments.length ? state.installments.map(i => `
+      <div class="white-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:10px;font-weight:800;color:#162B75;">${i.category}</div>
+            <div style="font-size:13px;font-weight:800;">${i.provider}</div>
+            <div style="font-size:10.5px;color:#4B5563;">${i.paidMonths} of ${i.totalMonths} Months (0% 1st Month Applied)</div>
+          </div>
+          <span style="background:${i.remaining>0?'#FEE2E2':'#DCFCE7'};color:${i.remaining>0?'#DC2626':'#16A34A'};font-size:10px;font-weight:800;padding:3px 9px;border-radius:10px;">${i.remaining>0?'Upcoming':'Settled'}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);background:#F3F4F6;border-radius:10px;padding:8px;margin:10px 0;font-size:10.5px;">
+          <div><span style="color:#6B7280;">Borrowed</span><br><b>${php(i.borrowed)}</b></div>
+          <div><span style="color:#6B7280;">Paid</span><br><b>${php(i.paid)}</b></div>
+          <div><span style="color:#6B7280;">Remaining</span><br><b>${php(i.remaining)}</b></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:10.5px;">
+          <span>Next Due: <b>${i.nextDueDate} (${php(Math.min(i.nextDueAmount, i.remaining))})</b></span>
+          ${i.remaining > 0 ? `<button onclick="payActiveInstallment()" style="background:#D8E7FF;color:#162B75;border:none;border-radius:10px;padding:6px 10px;font-size:10.5px;font-weight:800;cursor:pointer;">Pay Installment</button>` : ''}
+        </div>
+      </div>
+    `).join('') : '<div class="white-card" style="text-align:center;color:#6B7280;font-size:12px;">No active installments yet. They appear here when you use MediPayLater.</div>';
+
+    // Pay Bill vouchers
+    const vSel = $('payVoucherSelect');
+    const prevV = vSel.value;
+    vSel.innerHTML = `<option value="">No voucher applied (${state.vouchers.length} available)</option>` +
+      state.vouchers.map(v => `<option value="${v.id}">${v.title} (-${php(v.amount)})</option>`).join('');
+    if(state.vouchers.some(v => v.id === prevV)) vSel.value = prevV;
+    recalcPaySummary();
+
+    // Top-up sources come from the accounts the visitor linked
+    const ts = $('topupSource');
+    const prevSrc = ts.value;
+    const sources = state.linkedAccounts.length
+      ? state.linkedAccounts.map(a => `${a.name} (${a.sub.split(' • ')[0]})`)
+      : ['BDO Unibank', 'BPI', 'UnionBank', 'GCash E-Wallet', 'Maya E-Wallet'];
+    ts.innerHTML = sources.map(s => `<option>${s}</option>`).join('');
+    if(sources.includes(prevSrc)) ts.value = prevSrc;
+
+    renderCardDisplay();
+    renderTransactionsList();
+    renderProvidersList();
+    renderNotifs();
+
+    // Profile
+    const emp = u.employmentStatus;
+    $('profAvatar').textContent = initials(u.shortName);
+    $('profFullName').textContent = u.shortName || 'Your name';
+    const age = calcAge(u.dob);
+    const dobBits = [];
+    if(u.dob && age !== null) dobBits.push(`DOB: ${fmtDob(u.dob)} (${age} yrs)`);
+    if(u.gender) dobBits.push(u.gender);
+    if(u.patientId) dobBits.push('Patient ID: ' + u.patientId);
+    $('profDobSex').textContent = dobBits.length ? dobBits.join(' • ') : 'Complete your profile';
+    const idb = $('profIdBadge');
+    idb.textContent = state.kycVerified ? (u.govIdType ? u.govIdType.split(' / ')[0] + ' Verified' : 'ID Verified') : 'ID Not Verified';
+    idb.style.opacity = state.kycVerified ? '1' : '0.6';
+    $('profAgeBadge').style.display = (age !== null && age >= 18) ? '' : 'none';
+    $('profPhone').textContent = u.phone || 'Not set';
+    $('profEmail').textContent = u.email || 'Not set';
+    $('profAddress').textContent = addrString() || 'Not set';
+    $('profEmergency').textContent = u.emergency || 'Not set';
+    $('profPhilhealth').textContent = u.idNumber || 'Not set';
+
+    $('profEmpStatus').textContent = emp || 'Not set';
+    $('profMonthlyIncome').textContent = (u.monthlyIncome === null || u.monthlyIncome === undefined) ? 'Not set' : php(u.monthlyIncome);
+    $('profEmployer').textContent = u.employerName || 'Not set';
+    const tf = [u.tenure, (u.payFrequency || '').split(' (')[0]].filter(Boolean);
+    $('profTenureFreq').textContent = tf.length ? tf.join(' • ') : 'Not set';
+    $('profMemberCat').textContent = !emp ? 'Not set'
+      : emp.includes('Employed') ? 'Direct Contributor (Employed)'
+      : (emp.includes('Self') || emp.includes('Business')) ? 'Self-Earning / Voluntary'
+      : 'Indirect / Sponsored Tier';
+    $('profHmo').textContent = (u.withInsurance === false || !u.insuranceStatus) ? 'None linked' : u.insuranceStatus;
+
+    $('editProfName').value = u.shortName || '';
+    $('editProfPhone').value = u.phone || '';
+    $('editProfEmail').value = u.email || '';
+    $('editProfAddr').value = addrString();
+    $('editProfEmerg').value = u.emergency || '';
+
+    $('linkedAccountsList').innerHTML = state.linkedAccounts.length ? state.linkedAccounts.map(acc => `
+      <div style="border:1px solid #E5E7EB;border-radius:12px;padding:9px 10px;display:flex;align-items:center;gap:10px;margin-bottom:7px;">
+        <div style="background:${acc.bg};color:#fff;font-size:10px;font-weight:900;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${acc.code}</div>
+        <div style="flex:1;">
+          <div style="font-size:12px;font-weight:800;">${acc.name}</div>
+          <div style="font-size:10px;color:#6B7280;">${acc.sub}</div>
+        </div>
+        <span style="font-size:10px;font-weight:800;color:#162B75;">VERIFIED</span>
+      </div>
+    `).join('') : '<div style="font-size:11px;color:#6B7280;padding:6px 2px;">No linked accounts yet. Tap “+ Link Account” to add a bank or e-wallet.</div>';
+  }
+
+  const todayForDateInput = new Date().toISOString().slice(0, 10);
+  $('regDob').max = todayForDateInput;
+  $('pcDob').max = todayForDateInput;
+  updateStepPills();
+  renderAll();
+  renderKycPreview();
+
+  $('pcAuthPage').addEventListener('keydown', e => {
+    if(e.key === 'Enter') { pcMode === 'create' ? pcCreateAccount() : pcLogin(); }
+  });
+  IS_DESKTOP_MQ.addEventListener('change', () => {
+    updateStepPills();
+    if(state.loggedIn || pendingOnboarding) return;
+    if(isDesktop()) goScreen('pcauth');
+    else if(document.body.classList.contains('pc-auth-mode')) goScreen('onb2');
+  });
+
+  if(state.loggedIn) enterMainApp('home');
+  else if(isDesktop()) { pcSetMode('create'); goScreen('pcauth'); }
+</script>
+</body>
+</html>
